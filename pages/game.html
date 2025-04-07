@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏 - 翻翻卡游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #0B1026, #262B44);
+            height: 100vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 添加星空背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 130px 80px, #ffffff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            animation: stars 100s linear infinite;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        @keyframes stars {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100%); }
+        }
+        
+        .page-container {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .game-header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .progress-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            font-size: 24px;
+        }
+
+        .timer-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .timer-display.urgent {
+            color: #ff4757;
+            animation: pulse 1s infinite;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.3) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            animation: shine 1.5s linear infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .game-board {
+            display: grid;
+            gap: 10px;
+            margin: 8px auto;
+            justify-content: center;
+            align-content: start;
+            flex: 1;
+            max-width: 100%;
+            padding: 0 10px;
+            height: calc(100vh - 220px);
+            overflow-y: auto;
+        }
+        
+        .card {
+            width: calc(45vw - 15px);
+            height: calc(30vw - 10px);
+            max-width: 160px;
+            max-height: 90px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            position: relative;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .card[data-type="word"] {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            padding: 6px;
+            word-break: break-word;
+        }
+        
+        .card[data-type="image"] {
+            font-size: 32px;
+        }
+        
+        .card .card-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backface-visibility: hidden;
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #2E5C8A, #4A90E2);
+            border-radius: 10px;
+            padding: 8px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .card.matched .card-content {
+            background: linear-gradient(135deg, #2ECC71, #27AE60);
+            animation: celebrate 0.3s ease-in-out;
+        }
+        
+        @keyframes celebrate {
+            0%, 100% { transform: rotateY(180deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.05); }
+        }
+        
+        /* 添加抖动动画 */
+        @keyframes shake {
+            0%, 100% { transform: rotateY(180deg) translateX(0); }
+            25% { transform: rotateY(180deg) translateX(-8px); }
+            75% { transform: rotateY(180deg) translateX(8px); }
+        }
+
+        .card.shake {
+            animation: shake 0.3s ease-in-out;
+        }
+        
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .card::before {
+            content: '🚀';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #4A90E2, #2E5C8A);
+            border-radius: 10px;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            backface-visibility: hidden;
+        }
+        
+        .controls {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
+        
+        .button {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #4A90E2, #2E5C8A);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 20px;
+            font-weight: 700;
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin: 0 10px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .button.secondary {
+            background: linear-gradient(135deg, #2E5C8A, #1C3D5A);
+            box-shadow: 0 6px 15px rgba(46, 92, 138, 0.4);
+        }
+        
+        .button:active {
+            transform: scale(0.95) translateY(2px);
+        }
+        
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 20px;
+            color: #fff;
+            height: 30px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        /* 胜利消息 */
+        .victory-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #4A90E2, #2E5C8A);
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            z-index: 10;
+            width: 90%;
+            max-width: 300px;
+            animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            display: none;
+            border: 3px solid #FFD700;
+        }
+        
+        @keyframes pop-in {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            70% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .victory-message h2 {
+            color: #fff;
+            font-size: 36px;
+            margin-bottom: 20px;
+            animation: bounce 0.6s infinite;
+        }
+        
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .star-rating .star {
+            font-size: 50px;
+            color: #ddd;
+            transition: all 0.5s ease;
+            filter: grayscale(1);
+        }
+        
+        .star-rating .star.active {
+            color: #FFD700;
+            filter: grayscale(0);
+            animation: star-pop 0.5s ease-out;
+        }
+        
+        @keyframes star-pop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .rating-text {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 20px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slide-up 0.3s ease forwards;
+            animation-delay: 1s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .victory-buttons {
+            margin-top: 20px;
+        }
+        
+        .victory-buttons .button {
+            font-size: 24px;
+            padding: 15px 35px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        
+        .victory-buttons .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* 彩带动画 */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            animation: confetti-fall 2s ease-in-out forwards;
+            transform-origin: center;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-10px) rotate(0deg);
+                opacity: 1;
+            }
+            25% {
+                transform: translateY(25vh) rotate(90deg);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(50vh) rotate(180deg);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translateY(75vh) rotate(270deg);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 紧迫感提示 */
+        .urgent-message {
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(255, 107, 107, 0.9);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .urgent-message.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .star-rating .star {
+            font-size: 45px;
+            color: #ddd;
+            transition: all 0.5s ease;
+            filter: grayscale(1);
+        }
+
+        .star-rating .star.active {
+            color: #FFD700;
+            filter: grayscale(0);
+            animation: star-pop 0.5s ease-out;
+        }
+
+        .star-badge {
+            position: relative;
+            display: inline-block;
+            margin: 15px 0;
+        }
+
+        .star-badge::after {
+            content: attr(data-level);
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #FF6B6B;
+            color: white;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .rating-text {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 15px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slide-up 0.3s ease forwards;
+            animation-delay: 0.8s;
+        }
+
+        .next-step-hint {
+            background: linear-gradient(135deg, #4A90E2, #2E5C8A);
+            padding: 12px;
+            border-radius: 16px;
+            margin: 15px 0;
+            font-size: 18px;
+            color: #fff;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* 添加机器人 Wordy */
+        .wordy {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 40px;
+            z-index: 2;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <div class="game-header">
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>🚀</span>
+                    <span>探索进度：0/9</span>
+                </div>
+                <div class="timer-display">
+                    <span>⏱️</span>
+                    <span>90s</span>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+        
+        <div id="game-board" class="game-board"></div>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="controls">
+            <button id="start-game" class="button">开始探索</button>
+            <button id="restart-game" class="button secondary" style="display: none;">重新探索</button>
+        </div>
+
+        <!-- 添加 Wordy 机器人 -->
+        <div id="wordy" class="wordy">🤖</div>
+    </div>
+    
+    <!-- 胜利消息 -->
+    <div id="victory-message" class="victory-message">
+        <h2>🎉 太棒啦！</h2>
+        <div class="star-rating">
+            <span class="star">⭐</span>
+            <span class="star">⭐</span>
+            <span class="star">⭐</span>
+        </div>
+        <p class="rating-text"></p>
+        <div class="victory-buttons">
+            <button id="play-again" class="button">再玩一次</button>
+        </div>
+    </div>
+    
+    <!-- 彩带容器 -->
+    <div id="confetti-container" class="confetti-container"></div>
+    
+    <script>
+        class MemoryGame {
+            constructor() {
+                this.currentRound = 1;
+                this.cards = [];
+                this.flippedCards = [];
+                this.matchedPairs = 0;
+                this.timeLeft = 90;
+                this.timer = null;
+                this.isPlaying = false;
+                this.roundTimes = [];
+                this.totalStars = 0;
+                this.encouragements = [
+                    '太棒了！继续收集星星！ ⭐',
+                    '你是最棒的星际探险家！ 🚀',
+                    '这片星域被你探索得很好！ 🌟',
+                    '继续前进，宇宙等着你！ 🌠',
+                    '又发现了新的星星！ ✨'
+                ];
+                this.consecutiveErrors = 0;
+                this.lastActionTime = Date.now();
+                this.inactivityTimer = null;
+                this.inactivityCheckInterval = 10000; // 10秒检查一次
+                this.maxInactivityTime = 15000; // 15秒无操作触发提醒
+
+                // 添加提醒文案
+                this.reminders = {
+                    errors: [
+                        '别着急，再仔细看看 🤔',
+                        '慢慢来，找找相同的图案 👀',
+                        '试试记住卡片的位置 💭'
+                    ],
+                    inactivity: [
+                        '需要帮忙吗？点击卡片开始探索 🚀',
+                        '来找找看哪些是一样的 🔍',
+                        '准备好继续探索了吗？ ✨'
+                    ]
+                };
+
+                // DOM elements
+                this.gameBoard = document.getElementById('game-board');
+                this.startButton = document.getElementById('start-game');
+                this.restartButton = document.getElementById('restart-game');
+                this.timerDisplay = document.getElementById('timer');
+                this.currentRoundDisplay = document.getElementById('current-round');
+                this.messageDisplay = document.getElementById('message');
+                this.confettiContainer = document.getElementById('confetti-container');
+                this.victoryMessage = document.getElementById('victory-message');
+                this.totalTimeDisplay = document.getElementById('total-time');
+                this.roundTimesDisplay = document.getElementById('round-times');
+                this.playAgainButton = document.getElementById('play-again');
+                this.wordy = document.getElementById('wordy');
+
+                // Bind event listeners
+                this.startButton.addEventListener('click', () => this.startGame());
+                this.restartButton.addEventListener('click', () => this.restartGame());
+                this.playAgainButton.addEventListener('click', () => {
+                    this.victoryMessage.style.display = 'none';
+                    this.restartGame();
+                });
+
+                // 初始化 Wordy 动画
+                this.initWordy();
+                // 初始化无操作检测
+                this.initInactivityCheck();
+            }
+
+            initWordy() {
+                // Wordy 的欢迎动画
+                this.wordy.style.transform = 'translateY(100px)';
+                setTimeout(() => {
+                    this.wordy.style.transition = 'transform 0.5s ease-out';
+                    this.wordy.style.transform = 'translateY(0)';
+                }, 100);
+            }
+
+            initInactivityCheck() {
+                this.inactivityTimer = setInterval(() => {
+                    if (!this.isPlaying) return;
+                    
+                    const currentTime = Date.now();
+                    if (currentTime - this.lastActionTime > this.maxInactivityTime) {
+                        this.showInactivityReminder();
+                    }
+                }, this.inactivityCheckInterval);
+            }
+
+            showInactivityReminder() {
+                const reminder = this.reminders.inactivity[Math.floor(Math.random() * this.reminders.inactivity.length)];
+                this.messageDisplay.textContent = reminder;
+                
+                // 让 Wordy 机器人做出反应
+                this.wordy.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    this.wordy.style.transform = 'translateY(0)';
+                }, 200);
+
+                setTimeout(() => {
+                    this.messageDisplay.textContent = '';
+                }, 3000);
+            }
+
+            showErrorReminder() {
+                const reminder = this.reminders.errors[Math.floor(Math.random() * this.reminders.errors.length)];
+                this.messageDisplay.textContent = reminder;
+                
+                // 让 Wordy 机器人做出反应
+                this.wordy.style.animation = 'none';
+                this.wordy.offsetHeight; // 触发重绘
+                this.wordy.style.animation = 'shake 0.5s ease-in-out';
+
+                setTimeout(() => {
+                    this.messageDisplay.textContent = '';
+                }, 2000);
+            }
+
+            startGame() {
+                this.isPlaying = true;
+                this.startButton.style.display = 'none';
+                this.restartButton.style.display = 'none';
+                this.currentRound = 1;
+                this.timeLeft = 90;
+                this.roundTimes = [];
+                this.totalStars = 0;
+                this.startTimer();
+                this.createBoard();
+                this.updateProgress();
+                
+                // 开始游戏时的欢迎语
+                this.messageDisplay.textContent = '准备好探索太空了吗？ 🚀';
+                setTimeout(() => {
+                    this.messageDisplay.textContent = '';
+                }, 2000);
+                this.consecutiveErrors = 0;
+                this.lastActionTime = Date.now();
+            }
+
+            restartGame() {
+                this.gameBoard.innerHTML = '';
+                this.startGame();
+                this.consecutiveErrors = 0;
+                this.lastActionTime = Date.now();
+            }
+
+            startTimer() {
+                if (this.timer) clearInterval(this.timer);
+                
+                this.timer = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateProgress(); // 更新倒计时显示
+                    
+                    // 添加紧迫感提示
+                    if (this.timeLeft === 30) {
+                        this.showUrgentMessage();
+                    }
+                    
+                    if (this.timeLeft <= 0) {
+                        this.gameOver();
+                    }
+                }, 1000);
+            }
+
+            showUrgentMessage() {
+                const urgentMessage = document.createElement('div');
+                urgentMessage.className = 'urgent-message';
+                urgentMessage.textContent = '⏰ 加油加油，你可以的！';
+                document.body.appendChild(urgentMessage);
+
+                setTimeout(() => {
+                    urgentMessage.classList.add('show');
+                }, 100);
+
+                setTimeout(() => {
+                    urgentMessage.classList.remove('show');
+                    setTimeout(() => {
+                        urgentMessage.remove();
+                    }, 500);
+                }, 3000);
+            }
+
+            createBoard() {
+                const pairs = this.currentRound + 1;
+                // 定义单词和对应的图像
+                const wordImagePairs = [
+                    { word: 'Apple', image: '🍎' },
+                    { word: 'Banana', image: '🍌' },
+                    { word: 'Cat', image: '🐱' },
+                    { word: 'Dog', image: '🐶' },
+                    { word: 'Elephant', image: '🐘' },
+                    { word: 'Fish', image: '🐠' },
+                    { word: 'Giraffe', image: '🦒' },
+                    { word: 'House', image: '🏠' }
+                ];
+                
+                this.cards = [];
+                this.flippedCards = [];
+                this.matchedPairs = 0;
+                
+                // 创建卡片对
+                for (let i = 0; i < pairs; i++) {
+                    const pair = wordImagePairs[i];
+                    this.cards.push({ type: 'word', content: pair.word });
+                    this.cards.push({ type: 'image', content: pair.image });
+                }
+
+                // 洗牌
+                for (let i = this.cards.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+                }
+
+                // 设置网格列数为2
+                this.gameBoard.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                
+                // 创建卡片元素
+                this.gameBoard.innerHTML = '';
+                this.cards.forEach((card, index) => {
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card';
+                    cardElement.dataset.index = index;
+                    cardElement.dataset.type = card.type;
+                    cardElement.dataset.content = card.content;
+                    
+                    // 创建卡片内容容器
+                    const contentElement = document.createElement('div');
+                    contentElement.className = 'card-content';
+                    if (card.type === 'word') {
+                        contentElement.style.fontSize = '16px';
+                        contentElement.style.fontWeight = '600';
+                        contentElement.style.padding = '5px';
+                    } else {
+                        contentElement.style.fontSize = '32px';
+                    }
+                    contentElement.textContent = card.content;
+                    
+                    cardElement.appendChild(contentElement);
+                    cardElement.addEventListener('click', () => this.flipCard(cardElement));
+                    this.gameBoard.appendChild(cardElement);
+                });
+
+                // 更新进度显示
+                this.updateProgress();
+            }
+
+            flipCard(card) {
+                if (!this.isPlaying || this.flippedCards.length >= 2 || 
+                    card.classList.contains('flipped') || 
+                    card.classList.contains('matched')) return;
+
+                // 更新最后操作时间
+                this.lastActionTime = Date.now();
+                
+                card.classList.add('flipped');
+                this.flippedCards.push(card);
+
+                if (this.flippedCards.length === 2) {
+                    this.checkMatch();
+                }
+            }
+
+            checkMatch() {
+                const [card1, card2] = this.flippedCards;
+                const match = card1.querySelector('.card-content').textContent === 
+                            this.getImageForWord(card2.querySelector('.card-content').textContent) ||
+                            card2.querySelector('.card-content').textContent === 
+                            this.getImageForWord(card1.querySelector('.card-content').textContent);
+
+                if (match) {
+                    this.consecutiveErrors = 0; // 重置连续错误计数
+                    this.matchedPairs++;
+                    this.flippedCards.forEach(card => {
+                        card.classList.add('matched');
+                    });
+                    this.updateProgress();
+                    
+                    // 显示随机鼓励语
+                    this.messageDisplay.textContent = this.encouragements[Math.floor(Math.random() * this.encouragements.length)];
+                    setTimeout(() => {
+                        this.messageDisplay.textContent = '';
+                    }, 1500);
+
+                    this.createMatchConfetti();
+
+                    if (this.matchedPairs === this.currentRound + 1) {
+                        this.roundComplete();
+                    }
+                } else {
+                    this.consecutiveErrors++;
+                    this.flippedCards.forEach(card => {
+                        card.classList.add('shake');
+                        setTimeout(() => {
+                            card.classList.remove('shake');
+                            card.classList.remove('flipped');
+                        }, 600);
+                    });
+
+                    // 连续错误提醒
+                    if (this.consecutiveErrors >= 2) {
+                        this.showErrorReminder();
+                    }
+                }
+                this.flippedCards = [];
+            }
+
+            getImageForWord(word) {
+                const wordImagePairs = {
+                    'Apple': '🍎',
+                    'Banana': '🍌',
+                    'Cat': '🐱',
+                    'Dog': '🐶',
+                    'Elephant': '🐘',
+                    'Fish': '🐠',
+                    'Giraffe': '🦒',
+                    'House': '🏠'
+                };
+                return wordImagePairs[word];
+            }
+
+            createMatchConfetti() {
+                const colors = ['#FFD700', '#FF69B4', '#7FFF00', '#00BFFF', '#FF6B6B', '#4A90E2'];
+                const numConfetti = 30; // 每次配对成功时的彩带数量
+
+                for (let i = 0; i < numConfetti; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    // 随机位置
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    // 随机颜色
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    // 随机延迟
+                    confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                    // 随机大小
+                    const size = Math.random() * 6 + 4;
+                    confetti.style.width = `${size}px`;
+                    confetti.style.height = `${size}px`;
+                    // 随机旋转
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    
+                    this.confettiContainer.appendChild(confetti);
+
+                    // 动画结束后移除彩带元素
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 2000);
+                }
+            }
+
+            showVictoryMessage() {
+                const totalTime = this.roundTimes.reduce((a, b) => a + b, 0);
+                
+                // 简化星级评价文案
+                let rating = '';
+                if (totalTime <= 90) {
+                    this.activateStars(3);
+                    rating = '你真是太厉害了！';
+                } else if (totalTime <= 120) {
+                    this.activateStars(2);
+                    rating = '做得很棒！';
+                } else {
+                    this.activateStars(1);
+                    rating = '真棒！';
+                }
+
+                document.querySelector('.rating-text').textContent = rating;
+                this.victoryMessage.style.display = 'block';
+                this.createConfetti();
+            }
+
+            activateStars(count) {
+                const stars = document.querySelectorAll('.star-rating .star');
+                stars.forEach((star, index) => {
+                    setTimeout(() => {
+                        if (index < count) {
+                            star.classList.add('active');
+                        }
+                    }, index * 200);
+                });
+            }
+
+            createConfetti() {
+                const colors = ['#FFD700', '#FF69B4', '#7FFF00', '#00BFFF', '#FF6B6B', '#4A90E2'];
+                const numConfetti = 60; // 游戏胜利时的彩带数量更多
+
+                for (let i = 0; i < numConfetti; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = `${Math.random() * 1}s`;
+                    const size = Math.random() * 8 + 6;
+                    confetti.style.width = `${size}px`;
+                    confetti.style.height = `${size}px`;
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    
+                    this.confettiContainer.appendChild(confetti);
+
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }
+            }
+
+            gameOver() {
+                clearInterval(this.timer);
+                clearInterval(this.inactivityTimer);
+                this.isPlaying = false;
+                this.messageDisplay.textContent = '游戏结束！时间到了！';
+                this.startButton.style.display = 'inline-block';
+            }
+
+            roundComplete() {
+                const roundTime = 90 - this.timeLeft;
+                this.roundTimes.push(roundTime);
+
+                if (this.currentRound === 3) {
+                    this.gameWon();
+                } else {
+                    this.currentRound++;
+                    this.timeLeft = 90;
+                    this.gameBoard.innerHTML = '';
+                    this.createBoard();
+                    this.messageDisplay.textContent = '';
+                }
+            }
+
+            gameWon() {
+                clearInterval(this.timer);
+                clearInterval(this.inactivityTimer);
+                this.isPlaying = false;
+                this.showVictoryMessage();
+                this.startButton.style.display = 'inline-block';
+            }
+
+            updateProgress() {
+                const progressText = document.querySelector('.progress-text span:last-child');
+                const progressFill = document.querySelector('.progress-fill');
+                const timerDisplay = document.querySelector('.timer-display span:last-child');
+                
+                // 计算总体进度
+                const totalPairsInGame = 9; // 第一轮2对 + 第二轮3对 + 第三轮4对 = 9对
+                let completedPairs = 0;
+                
+                // 计算之前轮次完成的配对数
+                for (let round = 1; round < this.currentRound; round++) {
+                    completedPairs += round + 1;
+                }
+                // 加上当前轮次完成的配对数
+                completedPairs += this.matchedPairs;
+                
+                const progress = (completedPairs / totalPairsInGame) * 100;
+                
+                // 更新进度文本和进度条
+                progressText.textContent = `探索进度：${completedPairs}/${totalPairsInGame}`;
+                progressFill.style.width = `${progress}%`;
+
+                // 更新倒计时显示
+                timerDisplay.textContent = `${this.timeLeft}s`;
+                
+                // 当剩余时间少于30秒时添加紧急样式
+                const timerContainer = document.querySelector('.timer-display');
+                if (this.timeLeft <= 30) {
+                    timerContainer.classList.add('urgent');
+                } else {
+                    timerContainer.classList.remove('urgent');
+                }
+            }
+        }
+
+        // 初始化游戏
+        const game = new MemoryGame();
+    </script>
+</body>
+</html> 

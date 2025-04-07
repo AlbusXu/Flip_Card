@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记录 - 翻翻卡游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #f5f7fa, #e4e7eb);
+            height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-top: 10px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .no-records {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .no-records-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .no-records-text {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .button:active {
+            transform: scale(0.95);
+        }
+        
+        .records-list {
+            margin: 20px 0;
+        }
+        
+        .record-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .record-date {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .record-total-time {
+            font-weight: 600;
+            color: #007aff;
+        }
+        
+        .record-rounds {
+            margin-top: 10px;
+        }
+        
+        .record-round {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        
+        .record-round-name {
+            color: #666;
+        }
+        
+        .record-round-time {
+            font-weight: 500;
+        }
+        
+        .record-rank {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #5ac8fa;
+            color: white;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 0 12px 0 12px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>游戏记录</h1>
+        <p class="subtitle">查看你的游戏历史和最佳成绩</p>
+    </div>
+    
+    <div id="records-container">
+        <!-- 记录将在这里动态生成 -->
+        <div class="no-records">
+            <div class="no-records-icon">📊</div>
+            <p class="no-records-text">你还没有任何游戏记录</p>
+            <button class="button" id="play-game">开始游戏</button>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="button" id="clear-records" style="display: none;">清除记录</button>
+    </div>
+    
+    <script>
+        // 获取记录
+        function loadRecords() {
+            const recordsJSON = localStorage.getItem('flipCardRecords');
+            return recordsJSON ? JSON.parse(recordsJSON) : [];
+        }
+        
+        // 显示记录
+        function displayRecords() {
+            const records = loadRecords();
+            const container = document.getElementById('records-container');
+            const clearButton = document.getElementById('clear-records');
+            
+            if (records.length === 0) {
+                container.innerHTML = `
+                    <div class="no-records">
+                        <div class="no-records-icon">📊</div>
+                        <p class="no-records-text">你还没有任何游戏记录</p>
+                        <button class="button" id="play-game">开始游戏</button>
+                    </div>
+                `;
+                
+                document.getElementById('play-game').addEventListener('click', () => {
+                    window.parent.postMessage({
+                        type: 'navigate',
+                        page: 'pages/game.html'
+                    }, '*');
+                });
+                
+                clearButton.style.display = 'none';
+            } else {
+                // 按总时间排序
+                records.sort((a, b) => {
+                    const totalTimeA = a.rounds.reduce((sum, time) => sum + time, 0);
+                    const totalTimeB = b.rounds.reduce((sum, time) => sum + time, 0);
+                    return totalTimeA - totalTimeB;
+                });
+                
+                let recordsHTML = '<div class="records-list">';
+                
+                records.forEach((record, index) => {
+                    const totalTime = record.rounds.reduce((sum, time) => sum + time, 0);
+                    const minutes = Math.floor(totalTime / 60);
+                    const seconds = totalTime % 60;
+                    const timeString = `${minutes > 0 ? minutes + '分' : ''}${seconds}秒`;
+                    
+                    recordsHTML += `
+                        <div class="record-card">
+                            ${index === 0 ? '<div class="record-rank">最佳</div>' : ''}
+                            <div class="record-header">
+                                <div class="record-date">${new Date(record.date).toLocaleString()}</div>
+                                <div class="record-total-time">${timeString}</div>
+                            </div>
+                            <div class="record-rounds">
+                                ${record.rounds.map((time, i) => `
+                                    <div class="record-round">
+                                        <div class="record-round-name">第 ${i + 1} 轮</div>
+                                        <div class="record-round-time">${time} 秒</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                recordsHTML += '</div>';
+                container.innerHTML = recordsHTML;
+                clearButton.style.display = 'block';
+            }
+        }
+        
+        // 清除记录
+        document.getElementById('clear-records').addEventListener('click', () => {
+            if (confirm('确定要清除所有游戏记录吗？')) {
+                localStorage.removeItem('flipCardRecords');
+                displayRecords();
+            }
+        });
+        
+        // 监听来自游戏页面的消息
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'gameCompleted') {
+                // 更新记录
+                const records = loadRecords();
+                records.push({
+                    date: new Date().getTime(),
+                    rounds: event.data.rounds
+                });
+                localStorage.setItem('flipCardRecords', JSON.stringify(records));
+                
+                // 重新显示记录
+                displayRecords();
+            }
+        });
+        
+        // 初始化
+        displayRecords();
+    </script>
+</body>
+</html> 

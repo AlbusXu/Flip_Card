@@ -1,0 +1,221 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background-color: #f5f5f7;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+/* iPhone 15 Pro 样式设计 */
+.iphone-container {
+    width: 393px;
+    height: 852px;
+    background-color: #000;
+    border-radius: 55px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+/* 顶部状态栏 */
+.status-bar {
+    height: 47px;
+    width: 100%;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    z-index: 100;
+    background-color: #000;
+    position: relative;
+}
+
+.notch {
+    position: absolute;
+    width: 160px;
+    height: 34px;
+    background-color: #000;
+    border-radius: 0 0 20px 20px;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 101;
+}
+
+.status-bar-left {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: 102;
+}
+
+.status-bar-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    z-index: 102;
+}
+
+.time {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.signal, .wifi, .battery {
+    width: 18px;
+    height: 18px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.signal {
+    background-image: url('../assets/images/signal.svg');
+}
+
+.wifi {
+    background-image: url('../assets/images/wifi.svg');
+}
+
+.battery {
+    background-image: url('../assets/images/battery.svg');
+    width: 28px;
+}
+
+/* App内容区域 */
+.app-content {
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+#content-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: #fff;
+}
+
+/* 底部导航栏 */
+.tab-bar {
+    height: 83px;
+    width: 100%;
+    background-color: rgba(24, 24, 27, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 0.5px solid rgba(255,255,255,0.2);
+}
+
+.tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 0;
+    width: 25%;
+    cursor: pointer;
+    color: #8e8e93;
+    transition: color 0.3s ease;
+}
+
+.tab-item.active {
+    color: #007aff;
+}
+
+.tab-icon {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 4px;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.home-icon {
+    background-image: url('../assets/images/home-icon.svg');
+}
+
+.game-icon {
+    background-image: url('../assets/images/game-icon.svg');
+}
+
+.records-icon {
+    background-image: url('../assets/images/records-icon.svg');
+}
+
+.settings-icon {
+    background-image: url('../assets/images/settings-icon.svg');
+}
+
+.tab-item.active .home-icon {
+    background-image: url('../assets/images/home-icon-active.svg');
+}
+
+.tab-item.active .game-icon {
+    background-image: url('../assets/images/game-icon-active.svg');
+}
+
+.tab-item.active .records-icon {
+    background-image: url('../assets/images/records-icon-active.svg');
+}
+
+.tab-item.active .settings-icon {
+    background-image: url('../assets/images/settings-icon-active.svg');
+}
+
+.tab-label {
+    font-size: 10px;
+    margin-top: 1px;
+}
+
+/* 适配较小设备 */
+@media (max-height: 870px) {
+    .iphone-container {
+        transform: scale(0.95);
+    }
+}
+
+@media (max-height: 820px) {
+    .iphone-container {
+        transform: scale(0.9);
+    }
+}
+
+@media (max-height: 770px) {
+    .iphone-container {
+        transform: scale(0.85);
+    }
+}
+
+/* 适配移动设备 */
+@media (max-width: 500px) {
+    .iphone-container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        transform: none;
+    }
+} 

@@ -1,0 +1,318 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.container {
+    max-width: 100%;
+    width: 100%;
+    padding: 16px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-around;
+    font-size: 16px;
+    color: #666;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.game-board {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 20px;
+    justify-content: center;
+    flex: 1;
+    align-items: center;
+    padding: 10px;
+}
+
+.card {
+    width: 80px;
+    height: 80px;
+    background-color: #fff;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.card::before {
+    content: '?';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    border-radius: 12px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    backface-visibility: hidden;
+}
+
+.card.flipped {
+    transform: rotateY(180deg);
+    background-color: #e3f2fd;
+}
+
+.card.matched {
+    background-color: #c8e6c9;
+    transform: rotateY(180deg);
+}
+
+.controls {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 16px;
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 80%;
+    max-width: 300px;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.message {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 16px;
+    color: #666;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* iPhone 适配 */
+@media (max-width: 428px) {
+    .card {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+    }
+
+    .card::before {
+        font-size: 20px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .game-info {
+        font-size: 14px;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+/* 横屏适配 */
+@media (orientation: landscape) {
+    .container {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .game-board {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+/* 彩带动画样式 */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #f00;
+    animation: confetti-fall 3s ease-in-out forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* 胜利动画样式 */
+.victory-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1001;
+    animation: victory-pop 0.5s ease-out;
+}
+
+@keyframes victory-pop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.victory-message {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.victory-message h2 {
+    color: #007AFF;
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.victory-message p {
+    color: #666;
+    font-size: 18px;
+    margin: 5px 0;
+}
+
+/* 紧迫感提示样式 */
+.urgent-message {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(255, 59, 48, 0.95);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    z-index: 1002;
+    box-shadow: 0 4px 20px rgba(255, 59, 48, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.urgent-message.show {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+/* 修改胜利消息样式 */
+.victory-message .round-times {
+    margin: 15px 0;
+    line-height: 1.6;
+    color: #007AFF;
+    font-weight: 500;
+}
+
+/* 修改计时器样式 */
+#timer {
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+#timer.urgent {
+    color: #ff3b30;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+} 

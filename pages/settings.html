@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 - 翻翻卡游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #f5f7fa, #e4e7eb);
+            height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-top: 10px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .settings-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .setting-group {
+            margin-bottom: 25px;
+        }
+        
+        .setting-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .setting-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #007aff;
+        }
+        
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-label {
+            flex: 1;
+        }
+        
+        .setting-name {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .setting-description {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* 开关样式 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 51px;
+            height: 31px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 27px;
+            width: 27px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #34c759;
+        }
+        
+        input:focus + .slider {
+            box-shadow: 0 0 1px #34c759;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* 选择器样式 */
+        select {
+            background-color: #f5f7fa;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #333;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 30px;
+            min-width: 120px;
+        }
+        
+        /* 按钮样式 */
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 30px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .button.secondary {
+            background-color: #ff3b30;
+            margin-top: 15px;
+        }
+        
+        .button:active {
+            transform: scale(0.98);
+        }
+        
+        /* 关于部分 */
+        .about-section {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .app-version {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .copyright {
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>设置</h1>
+        <p class="subtitle">自定义游戏体验</p>
+    </div>
+    
+    <div class="settings-container">
+        <div class="setting-group">
+            <div class="setting-title">游戏设置</div>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-name">音效</div>
+                    <div class="setting-description">游戏中的音效和提示音</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="sound-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-name">游戏难度</div>
+                    <div class="setting-description">调整游戏的整体难度</div>
+                </div>
+                <select id="difficulty-select">
+                    <option value="easy">简单</option>
+                    <option value="normal" selected>普通</option>
+                    <option value="hard">困难</option>
+                </select>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-name">动画效果</div>
+                    <div class="setting-description">卡片翻转和其他视觉效果</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="animation-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <div class="setting-title">其他设置</div>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-name">夜间模式</div>
+                    <div class="setting-description">使用深色背景以减轻眼睛疲劳</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <button class="button" id="save-settings">保存设置</button>
+        <button class="button secondary" id="reset-settings">恢复默认设置</button>
+    </div>
+    
+    <div class="about-section">
+        <div class="app-version">翻翻卡游戏 v1.0.0</div>
+        <div class="copyright">© 2023 翻翻卡游戏团队</div>
+    </div>
+    
+    <script>
+        // 加载设置
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('flipCardSettings')) || {
+                sound: true,
+                difficulty: 'normal',
+                animation: true,
+                darkMode: false
+            };
+            
+            document.getElementById('sound-toggle').checked = settings.sound;
+            document.getElementById('difficulty-select').value = settings.difficulty;
+            document.getElementById('animation-toggle').checked = settings.animation;
+            document.getElementById('dark-mode-toggle').checked = settings.darkMode;
+            
+            // 应用夜间模式
+            if (settings.darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        }
+        
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                sound: document.getElementById('sound-toggle').checked,
+                difficulty: document.getElementById('difficulty-select').value,
+                animation: document.getElementById('animation-toggle').checked,
+                darkMode: document.getElementById('dark-mode-toggle').checked
+            };
+            
+            localStorage.setItem('flipCardSettings', JSON.stringify(settings));
+            
+            // 显示保存成功消息
+            const saveMessage = document.createElement('div');
+            saveMessage.textContent = '设置已保存';
+            saveMessage.style.position = 'fixed';
+            saveMessage.style.bottom = '20px';
+            saveMessage.style.left = '50%';
+            saveMessage.style.transform = 'translateX(-50%)';
+            saveMessage.style.backgroundColor = '#34c759';
+            saveMessage.style.color = 'white';
+            saveMessage.style.padding = '10px 20px';
+            saveMessage.style.borderRadius = '8px';
+            saveMessage.style.fontSize = '14px';
+            saveMessage.style.fontWeight = '600';
+            saveMessage.style.zIndex = '1000';
+            
+            document.body.appendChild(saveMessage);
+            
+            setTimeout(() => {
+                saveMessage.style.opacity = '0';
+                saveMessage.style.transition = 'opacity 0.5s ease';
+                
+                setTimeout(() => {
+                    document.body.removeChild(saveMessage);
+                }, 500);
+            }, 2000);
+            
+            // 应用夜间模式
+            if (settings.darkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            
+            // 通知游戏页面设置已更改
+            window.parent.postMessage({
+                type: 'settingsChanged',
+                settings: settings
+            }, '*');
+        }
+        
+        // 重置设置
+        function resetSettings() {
+            if (confirm('确定要恢复默认设置吗？')) {
+                document.getElementById('sound-toggle').checked = true;
+                document.getElementById('difficulty-select').value = 'normal';
+                document.getElementById('animation-toggle').checked = true;
+                document.getElementById('dark-mode-toggle').checked = false;
+                
+                saveSettings();
+            }
+        }
+        
+        // 添加事件监听器
+        document.getElementById('save-settings').addEventListener('click', saveSettings);
+        document.getElementById('reset-settings').addEventListener('click', resetSettings);
+        
+        // 初始化
+        loadSettings();
+    </script>
+</body>
+</html> 
