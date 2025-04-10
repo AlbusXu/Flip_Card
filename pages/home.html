@@ -144,31 +144,81 @@
 <body>
     <div class="page-container">
         <div class="title-container">
-            <h1>太空探险记忆翻翻乐</h1>
-            <p>开启你的太空记忆之旅</p>
+            <h1 data-i18n="home.title">太空探险记忆翻翻乐</h1>
+            <p data-i18n="home.subtitle">开启你的太空记忆之旅</p>
         </div>
 
         <div class="menu-options">
             <button class="menu-button" onclick="startGame()">
                 <span>🚀</span>
-                开始游戏
+                <span data-i18n="home.start_game">开始游戏</span>
             </button>
             <button class="menu-button" onclick="showHelp()">
                 <span>❓</span>
-                游戏帮助
+                <span data-i18n="home.game_help">游戏帮助</span>
             </button>
             <button class="menu-button" onclick="showSettings()">
                 <span>⚙️</span>
-                游戏设置
+                <span data-i18n="home.game_settings">游戏设置</span>
             </button>
         </div>
 
         <div class="bottom-controls">
-            <button class="control-button help-button" onclick="showHelp()">帮助</button>
-            <button class="control-button settings-button" onclick="showSettings()">设置</button>
+            <button class="control-button help-button" onclick="showHelp()">
+                <span data-i18n="home.help">帮助</span>
+            </button>
+            <button class="control-button settings-button" onclick="showSettings()">
+                <span data-i18n="home.settings">设置</span>
+            </button>
         </div>
     </div>
 
+    <!-- 引入多语言支持 -->
+    <script>
+        // 设置一个简单的备用i18n对象，防止加载失败
+        window.i18nLoaded = false;
+        window.fallbackI18n = {
+            initialized: false,
+            currentLang: 'zh',
+            getText: function(key) {
+                // 基本的文本键值对
+                const fallbackTexts = {
+                    'home.help_content': '欢迎来到太空探险记忆翻翻乐！\n\n游戏规则：\n1. 点击卡片翻开它们\n2. 找到配对的卡片\n3. 在规定时间内完成所有配对\n\n祝你好运，小宇航员！',
+                    'home.title': '太空探险记忆翻翻乐',
+                    'home.subtitle': '开启你的太空记忆之旅'
+                };
+                return fallbackTexts[key] || key;
+            },
+            changeLanguage: function() { 
+                console.log('Fallback: 尝试切换语言，但i18n未正确加载'); 
+                return false; 
+            }
+        };
+        
+        // 定义一个函数来获取i18n对象，防止undefined错误
+        window.getI18n = function() {
+            return (window.i18nLoaded && window.i18n) ? window.i18n : window.fallbackI18n;
+        };
+        
+        function handleI18nLoad() {
+            console.log('i18n.js加载成功');
+            window.i18nLoaded = true;
+            
+            // 尝试初始化
+            if (window.i18n && typeof window.i18n.init === 'function') {
+                window.i18n.init().catch(function(error) {
+                    console.error('i18n初始化失败:', error);
+                });
+            }
+        }
+        
+        function handleI18nError() {
+            console.error('i18n.js加载失败，使用后备方案');
+            // 继续使用fallbackI18n
+        }
+    </script>
+    <script src="../js/i18n.js" onload="handleI18nLoad()" onerror="handleI18nError()"></script>
+    
     <script>
         function startGame() {
             // 跳转到难度选择页面
@@ -176,14 +226,26 @@
         }
 
         function showHelp() {
-            // 显示帮助信息
-            alert('欢迎来到太空探险记忆翻翻乐！\n\n游戏规则：\n1. 点击卡片翻开它们\n2. 找到配对的卡片\n3. 在规定时间内完成所有配对\n\n祝你好运，小宇航员！');
+            try {
+                // 显示帮助信息，使用i18n获取多语言文本
+                const i18n = window.getI18n();
+                alert(i18n.getText('home.help_content'));
+            } catch (error) {
+                console.error('显示帮助时出错:', error);
+                // 使用后备文本
+                alert('欢迎来到太空探险记忆翻翻乐！\n\n游戏规则：\n1. 点击卡片翻开它们\n2. 找到配对的卡片\n3. 在规定时间内完成所有配对\n\n祝你好运，小宇航员！');
+            }
         }
 
         function showSettings() {
-            // 显示设置面板
-            alert('设置功能即将推出！');
+            // 显示设置页面
+            window.location.href = 'settings.html';
         }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('主页已加载，等待i18n初始化...');
+        });
     </script>
     
     <!-- Vercel Analytics -->

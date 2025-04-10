@@ -22,7 +22,24 @@ document.querySelectorAll('.tab-item').forEach(item => {
 
         // 更改iframe源
         const pagePath = item.getAttribute('data-page');
-        document.getElementById('content-frame').src = pagePath;
+        const iframe = document.getElementById('content-frame');
+        iframe.src = pagePath;
+        
+        // 在iframe加载完成后同步语言设置
+        iframe.onload = function() {
+            // 获取当前语言
+            const currentLang = window.i18n ? window.i18n.currentLang : 'zh';
+            
+            // 通知iframe当前语言
+            if (iframe.contentWindow) {
+                setTimeout(() => {
+                    iframe.contentWindow.postMessage({
+                        type: 'languageChanged',
+                        language: currentLang
+                    }, '*');
+                }, 500); // 延迟发送，确保iframe的i18n已初始化
+            }
+        };
         
         // 添加点击反馈
         item.style.transform = 'scale(0.95)';
@@ -47,6 +64,11 @@ window.addEventListener('message', (event) => {
     } else if (message.type === 'gameCompleted') {
         // 游戏完成时的处理逻辑
         // 可以在这里更新记录等...
+    } else if (message.type === 'settingsChanged') {
+        // 如果设置包含语言变更，则更新主应用语言
+        if (message.settings && message.settings.language && window.i18n) {
+            window.i18n.changeLanguage(message.settings.language);
+        }
     }
 });
 
@@ -64,9 +86,27 @@ function setupFullscreenMode() {
 }
 
 // 初始化
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     setupFullscreenMode();
     
     // 窗口大小变化时重新检查
     window.addEventListener('resize', setupFullscreenMode);
+    
+    // 初始化i18n并更新页面文本
+    if (window.i18n) {
+        await window.i18n.init();
+        
+        // 在页面加载完成后，将当前语言传递给iframe
+        const iframe = document.getElementById('content-frame');
+        if (iframe && iframe.contentWindow) {
+            iframe.onload = function() {
+                setTimeout(() => {
+                    iframe.contentWindow.postMessage({
+                        type: 'languageChanged',
+                        language: window.i18n.currentLang
+                    }, '*');
+                }, 500); // 延迟发送，确保iframe的i18n已初始化
+            };
+        }
+    }
 }); 

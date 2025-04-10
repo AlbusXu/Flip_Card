@@ -1,0 +1,126 @@
+{
+  "app": {
+    "name": "Space Adventure Memory Game",
+    "copyright": "© 2024 Space Adventure Memory Game",
+    "version": "v1.0.0"
+  },
+  "tabs": {
+    "home": "Home",
+    "game": "Game",
+    "records": "Records",
+    "settings": "Settings"
+  },
+  "home": {
+    "title": "Space Adventure Memory Game",
+    "subtitle": "Start your space memory journey",
+    "start_game": "Start Game",
+    "game_help": "Game Help",
+    "game_settings": "Game Settings",
+    "help": "Help",
+    "settings": "Settings",
+    "help_content": "Welcome to Space Adventure Memory Game!\n\nGame Rules:\n1. Click on cards to flip them\n2. Find matching pairs of cards\n3. Complete all pairs within the time limit\n\nGood luck, little astronaut!"
+  },
+  "difficulty": {
+    "title": "Choose Your Adventure Mode",
+    "subtitle": "Different space journey experiences",
+    "back": "Back",
+    "help": "Help",
+    "settings": "Settings",
+    "help_content": "Each difficulty level has different game time and number of pairs:\nExplore Mode: 120 seconds, suitable for beginners\nAdventure Mode: 90 seconds, balanced game experience\nChallenge Mode: 60 seconds, requires fast reactions",
+    "explore_mode": {
+      "title": "Explore Mode",
+      "description": "Perfect for ages 5-7, with plenty of time to explore space!",
+      "feature1": "More Time",
+      "feature2": "More Hints"
+    },
+    "adventure_mode": {
+      "title": "Adventure Mode",
+      "description": "Great for ages 7-9, enjoy an exciting space adventure!",
+      "feature1": "Moderate Challenge",
+      "feature2": "Balanced Hints"
+    },
+    "challenge_mode": {
+      "title": "Challenge Mode",
+      "description": "For ages 9-10, show your space exploration skills!",
+      "feature1": "Quick Memory",
+      "feature2": "Minimal Hints"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize your game experience",
+    "game_settings": "Game Settings",
+    "sound": "Sound Effects",
+    "sound_desc": "Game sounds and audio cues",
+    "difficulty": "Game Difficulty",
+    "difficulty_desc": "Adjust the overall game difficulty",
+    "animation": "Animation Effects",
+    "animation_desc": "Card flips and other visual effects",
+    "other_settings": "Other Settings",
+    "dark_mode": "Dark Mode",
+    "dark_mode_desc": "Use dark background to reduce eye strain",
+    "language": "Language",
+    "language_desc": "Choose interface display language",
+    "save_settings": "Save Settings",
+    "reset_settings": "Reset to Default",
+    "settings_saved": "Settings Saved",
+    "reset_confirm": "Are you sure you want to reset to default settings?",
+    "difficulty_options": {
+      "easy": "Easy",
+      "normal": "Normal",
+      "hard": "Hard"
+    },
+    "language_options": {
+      "zh": "简体中文",
+      "en": "English"
+    }
+  },
+  "game": {
+    "time_left": "Time Left",
+    "round": "Round",
+    "start": "Start Exploration",
+    "restart": "Restart Exploration",
+    "urgent_message": "⏰ Half time gone, keep going!",
+    "game_over": "Game Over! Time's up!",
+    "victory": {
+      "title": "Rocket Launch Success!",
+      "total_time": "Time Used",
+      "round_time": "Round {round} Time",
+      "seconds": "s",
+      "minutes": "m",
+      "congrats": "Congratulations! The rocket has successfully launched and begun its space adventure!"
+    },
+    "play_again": "Play Again",
+    "choose_difficulty": "Choose Difficulty",
+    "time_remaining": "Time Remaining",
+    "completion_rate": "Completion Rate",
+    "pairs_matched": "Pairs Matched",
+    "try_again": "You almost got the rocket to launch! Try again, you'll succeed for sure this time!",
+    "encouragements": [
+      "Great job! Keep it up 🌟",
+      "You're awesome! 👏",
+      "Perfect match! ✨",
+      "Good eye! 🎯",
+      "Space exploration in progress... 🚀",
+      "Smart little genius! 🧠",
+      "Keep going! ⭐",
+      "The journey continues! 🌠"
+    ],
+    "error_reminders": [
+      "Take your time, look carefully 🤔",
+      "Slow down, find the matching patterns 👀",
+      "Try to remember the card positions 💭"
+    ],
+    "inactivity_reminders": [
+      "Need help? Click on a card to start exploring 🚀",
+      "Let's find the matching pairs 🔍",
+      "Ready to continue the exploration? ✨"
+    ],
+    "victory_message": "Victory! Time's up!",
+    "failure_message": "Game Over! Time's up!",
+    "round_complete": "Round {round} complete! Time used: {seconds}s 🎉",
+    "next_round": "Getting ready for Round {round}!",
+    "progress": "Exploration Progress: {completed}/{total}",
+    "welcome": "Ready to explore space? 🚀"
+  }
+} 

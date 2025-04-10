@@ -30,24 +30,53 @@
         <div class="tab-bar">
             <div class="tab-item active" data-page="pages/home.html">
                 <div class="tab-icon home-icon"></div>
-                <div class="tab-label">首页</div>
+                <div class="tab-label" data-i18n="tabs.home">首页</div>
             </div>
             <div class="tab-item" data-page="pages/game.html">
                 <div class="tab-icon game-icon"></div>
-                <div class="tab-label">游戏</div>
+                <div class="tab-label" data-i18n="tabs.game">游戏</div>
             </div>
             <div class="tab-item" data-page="pages/records.html">
                 <div class="tab-icon records-icon"></div>
-                <div class="tab-label">记录</div>
+                <div class="tab-label" data-i18n="tabs.records">记录</div>
             </div>
             <div class="tab-item" data-page="pages/settings.html">
                 <div class="tab-icon settings-icon"></div>
-                <div class="tab-label">设置</div>
+                <div class="tab-label" data-i18n="tabs.settings">设置</div>
             </div>
         </div>
     </div>
 
+    <!-- 引入多语言支持 -->
+    <script src="js/i18n.js"></script>
     <script src="js/main.js"></script>
+    
+    <!-- 处理多语言通信 -->
+    <script>
+        // 处理iframe之间的语言切换同步
+        window.addEventListener('message', async (event) => {
+            const message = event.data;
+            
+            // 处理来自iframe的语言改变消息
+            if (message && message.type === 'languageChanged') {
+                const langCode = message.language;
+                
+                // 更新主应用语言
+                if (window.i18n && window.i18n.initialized) {
+                    await window.i18n.changeLanguage(langCode);
+                    
+                    // 更新iframe语言
+                    const iframe = document.getElementById('content-frame');
+                    if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({
+                            type: 'languageChanged',
+                            language: langCode
+                        }, '*');
+                    }
+                }
+            }
+        });
+    </script>
     
     <!-- Vercel Analytics -->
     <script>
