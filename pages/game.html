@@ -538,6 +538,106 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
+
+        /* 添加结算弹窗样式 */
+        .result-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            min-width: 300px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-popup.success {
+            border-color: rgba(76, 175, 80, 0.3);
+        }
+
+        .result-popup.failure {
+            border-color: rgba(255, 152, 0, 0.3);
+        }
+
+        .result-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .result-stars {
+            margin: 15px 0;
+            font-size: 32px;
+        }
+
+        .result-stats {
+            margin: 20px 0;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .result-message {
+            margin: 15px 0;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.4;
+        }
+
+        .result-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .result-button {
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .result-button.primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .result-button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .result-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -550,7 +650,7 @@
                 </div>
                 <div class="timer-display">
                     <span>⏱️</span>
-                    <span>90s</span>
+                    <span id="timer-value">90s</span>
                 </div>
             </div>
             <div class="progress-bar">
@@ -571,20 +671,6 @@
         <div id="wordy" class="wordy">🤖</div>
     </div>
     
-    <!-- 胜利消息 -->
-    <div id="victory-message" class="victory-message">
-        <h2>🎉 太棒啦！</h2>
-        <div class="star-rating">
-            <span class="star">⭐</span>
-            <span class="star">⭐</span>
-            <span class="star">⭐</span>
-        </div>
-        <p class="rating-text"></p>
-        <div class="victory-buttons">
-            <button id="play-again" class="button">再玩一次</button>
-        </div>
-    </div>
-    
     <!-- 彩带容器 -->
     <div id="confetti-container" class="confetti-container"></div>
     
@@ -595,7 +681,23 @@
                 this.cards = [];
                 this.flippedCards = [];
                 this.matchedPairs = 0;
-                this.timeLeft = 90;
+                
+                // 根据难度设置时间
+                const difficulty = localStorage.getItem('gameDifficulty') || 'adventure';
+                const timeLimits = {
+                    explore: 120,    // 探索模式：120秒
+                    adventure: 90,   // 冒险模式：90秒
+                    challenge: 60    // 挑战模式：60秒
+                };
+                this.timeLeft = timeLimits[difficulty];
+                this.initialTime = timeLimits[difficulty];
+                
+                // 初始化时更新显示
+                const timerDisplay = document.querySelector('#timer-value');
+                if (timerDisplay) {
+                    timerDisplay.textContent = `${this.timeLeft}s`;
+                }
+
                 this.timer = null;
                 this.isPlaying = false;
                 this.roundTimes = [];
@@ -631,23 +733,17 @@
                 this.gameBoard = document.getElementById('game-board');
                 this.startButton = document.getElementById('start-game');
                 this.restartButton = document.getElementById('restart-game');
-                this.timerDisplay = document.getElementById('timer');
-                this.currentRoundDisplay = document.getElementById('current-round');
                 this.messageDisplay = document.getElementById('message');
                 this.confettiContainer = document.getElementById('confetti-container');
-                this.victoryMessage = document.getElementById('victory-message');
-                this.totalTimeDisplay = document.getElementById('total-time');
-                this.roundTimesDisplay = document.getElementById('round-times');
-                this.playAgainButton = document.getElementById('play-again');
                 this.wordy = document.getElementById('wordy');
 
                 // Bind event listeners
-                this.startButton.addEventListener('click', () => this.startGame());
-                this.restartButton.addEventListener('click', () => this.restartGame());
-                this.playAgainButton.addEventListener('click', () => {
-                    this.victoryMessage.style.display = 'none';
-                    this.restartGame();
-                });
+                if (this.startButton) {
+                    this.startButton.addEventListener('click', () => this.startGame());
+                }
+                if (this.restartButton) {
+                    this.restartButton.addEventListener('click', () => this.restartGame());
+                }
 
                 // 初始化 Wordy 动画
                 this.initWordy();
@@ -709,7 +805,23 @@
                 this.startButton.style.display = 'none';
                 this.restartButton.style.display = 'none';
                 this.currentRound = 1;
-                this.timeLeft = 90;
+                
+                // 重置时间为当前难度的时间
+                const difficulty = localStorage.getItem('gameDifficulty') || 'adventure';
+                const timeLimits = {
+                    explore: 120,
+                    adventure: 90,
+                    challenge: 60
+                };
+                this.timeLeft = timeLimits[difficulty];
+                this.initialTime = timeLimits[difficulty];
+                
+                // 更新显示
+                const timerDisplay = document.querySelector('#timer-value');
+                if (timerDisplay) {
+                    timerDisplay.textContent = `${this.timeLeft}s`;
+                }
+
                 this.roundTimes = [];
                 this.totalStars = 0;
                 this.startTimer();
@@ -745,7 +857,7 @@
                     }
                     
                     if (this.timeLeft <= 0) {
-                        this.gameOver();
+                        this.gameOver(false);
                     }
                 }, 1000);
             }
@@ -937,23 +1049,11 @@
 
             showVictoryMessage() {
                 const totalTime = this.roundTimes.reduce((a, b) => a + b, 0);
+                const timeUsed = this.initialTime - this.timeLeft;
+                const stars = this.calculateStars(timeUsed);
+                const totalPairs = this.cards.length / 2;
                 
-                // 简化星级评价文案
-                let rating = '';
-                if (totalTime <= 90) {
-                    this.activateStars(3);
-                    rating = '你真是太厉害了！';
-                } else if (totalTime <= 120) {
-                    this.activateStars(2);
-                    rating = '做得很棒！';
-                } else {
-                    this.activateStars(1);
-                    rating = '真棒！';
-                }
-
-                document.querySelector('.rating-text').textContent = rating;
-                this.victoryMessage.style.display = 'block';
-                this.createConfetti();
+                this.showResultPopup(true, stars, timeUsed, this.matchedPairs, totalPairs);
             }
 
             activateStars(count) {
@@ -990,26 +1090,56 @@
                 }
             }
 
-            gameOver() {
+            gameOver(isSuccess) {
                 clearInterval(this.timer);
                 clearInterval(this.inactivityTimer);
                 this.isPlaying = false;
-                this.messageDisplay.textContent = '游戏结束！时间到了！';
+                this.messageDisplay.textContent = isSuccess ? '游戏胜利！时间到了！' : '游戏结束！时间到了！';
                 this.startButton.style.display = 'inline-block';
+                
+                const timeUsed = this.initialTime - this.timeLeft;
+                const stars = isSuccess ? this.calculateStars(timeUsed) : 0;
+                const totalPairs = this.cards.length / 2;
+                
+                this.showResultPopup(isSuccess, stars, timeUsed, this.matchedPairs, totalPairs);
             }
 
             roundComplete() {
-                const roundTime = 90 - this.timeLeft;
+                const roundTime = this.initialTime - this.timeLeft;
                 this.roundTimes.push(roundTime);
 
                 if (this.currentRound === 3) {
                     this.gameWon();
                 } else {
                     this.currentRound++;
-                    this.timeLeft = 90;
+                    
+                    // 重置时间为当前难度的时间
+                    const difficulty = localStorage.getItem('gameDifficulty') || 'adventure';
+                    const timeLimits = {
+                        explore: 120,
+                        adventure: 90,
+                        challenge: 60
+                    };
+                    this.timeLeft = timeLimits[difficulty];
+                    this.initialTime = timeLimits[difficulty];
+                    
+                    // 更新显示
+                    const timerDisplay = document.querySelector('#timer-value');
+                    if (timerDisplay) {
+                        timerDisplay.textContent = `${this.timeLeft}s`;
+                    }
+
                     this.gameBoard.innerHTML = '';
                     this.createBoard();
-                    this.messageDisplay.textContent = '';
+                    
+                    // 显示当前轮次完成信息
+                    this.messageDisplay.textContent = `第${this.currentRound-1}轮完成！用时${roundTime}秒 🎉`;
+                    setTimeout(() => {
+                        this.messageDisplay.textContent = `准备开始第${this.currentRound}轮！`;
+                    }, 2000);
+                    setTimeout(() => {
+                        this.messageDisplay.textContent = '';
+                    }, 4000);
                 }
             }
 
@@ -1017,14 +1147,19 @@
                 clearInterval(this.timer);
                 clearInterval(this.inactivityTimer);
                 this.isPlaying = false;
-                this.showVictoryMessage();
+                
+                const totalTime = this.initialTime - this.timeLeft;
+                const stars = this.calculateStars(totalTime);
+                const totalPairs = this.cards.length / 2;
+                
+                this.showResultPopup(true, stars, totalTime, this.matchedPairs, totalPairs);
                 this.startButton.style.display = 'inline-block';
             }
 
             updateProgress() {
                 const progressText = document.querySelector('.progress-text span:last-child');
                 const progressFill = document.querySelector('.progress-fill');
-                const timerDisplay = document.querySelector('.timer-display span:last-child');
+                const timerDisplay = document.querySelector('#timer-value');
                 
                 // 计算总体进度
                 const totalPairsInGame = 9; // 第一轮2对 + 第二轮3对 + 第三轮4对 = 9对
@@ -1040,18 +1175,150 @@
                 const progress = (completedPairs / totalPairsInGame) * 100;
                 
                 // 更新进度文本和进度条
-                progressText.textContent = `探索进度：${completedPairs}/${totalPairsInGame}`;
-                progressFill.style.width = `${progress}%`;
+                if (progressText) {
+                    progressText.textContent = `探索进度：${completedPairs}/${totalPairsInGame}`;
+                }
+                if (progressFill) {
+                    progressFill.style.width = `${progress}%`;
+                }
 
                 // 更新倒计时显示
-                timerDisplay.textContent = `${this.timeLeft}s`;
+                if (timerDisplay) {
+                    timerDisplay.textContent = `${this.timeLeft}s`;
+                }
                 
                 // 当剩余时间少于30秒时添加紧急样式
                 const timerContainer = document.querySelector('.timer-display');
-                if (this.timeLeft <= 30) {
-                    timerContainer.classList.add('urgent');
-                } else {
-                    timerContainer.classList.remove('urgent');
+                if (timerContainer) {
+                    if (this.timeLeft <= 30) {
+                        timerContainer.classList.add('urgent');
+                    } else {
+                        timerContainer.classList.remove('urgent');
+                    }
+                }
+            }
+
+            calculateStars(timeUsed) {
+                const difficulty = localStorage.getItem('gameDifficulty') || 'adventure';
+                const timeLimits = {
+                    explore: 120,
+                    adventure: 90,
+                    challenge: 60
+                };
+                const timeLimit = timeLimits[difficulty];
+                
+                // 根据不同难度设置评分标准
+                const starThresholds = {
+                    explore: {
+                        three: 0.5,  // 用时少于50%时限
+                        two: 0.7,    // 用时少于70%时限
+                        one: 1       // 完成即可
+                    },
+                    adventure: {
+                        three: 0.4,  // 用时少于40%时限
+                        two: 0.6,    // 用时少于60%时限
+                        one: 1       // 完成即可
+                    },
+                    challenge: {
+                        three: 0.3,  // 用时少于30%时限
+                        two: 0.5,    // 用时少于50%时限
+                        one: 1       // 完成即可
+                    }
+                };
+                
+                const thresholds = starThresholds[difficulty];
+                const timeRatio = timeUsed / timeLimit;
+                
+                if (timeRatio <= thresholds.three) return 3;
+                if (timeRatio <= thresholds.two) return 2;
+                return 1;
+            }
+
+            showResultPopup(isSuccess, stars, timeUsed, matchedPairs, totalPairs) {
+                // 移除可能存在的旧弹窗
+                const oldPopup = document.querySelector('.result-popup');
+                if (oldPopup) {
+                    oldPopup.remove();
+                }
+
+                const popup = document.createElement('div');
+                popup.className = `result-popup ${isSuccess ? 'success' : 'failure'}`;
+                
+                // 计算剩余时间
+                const difficulty = localStorage.getItem('gameDifficulty') || 'adventure';
+                const timeLimits = {
+                    explore: 120,
+                    adventure: 90,
+                    challenge: 60
+                };
+                const timeLimit = timeLimits[difficulty];
+                const timeRemaining = Math.max(0, timeLimit - timeUsed);
+                
+                // 计算完成度
+                const completionRate = Math.round((matchedPairs / totalPairs) * 100);
+                
+                // 生成每轮用时的HTML（仅在成功时显示）
+                const roundTimesHTML = isSuccess ? this.roundTimes.map((time, index) => `
+                    <div class="stat-item">
+                        <span class="stat-label">第${index + 1}轮用时</span>
+                        <span>${time}秒</span>
+                    </div>
+                `).join('') : '';
+                
+                popup.innerHTML = `
+                    <div class="result-title">
+                        ${isSuccess ? 
+                            `<span style="font-size: 32px;">🚀</span>火箭发射成功！` : 
+                            `<span style="font-size: 32px;">⏰</span>时间到了！`
+                        }
+                    </div>
+                    ${isSuccess ? `
+                        <div class="result-stars">
+                            ${'⭐'.repeat(stars)}
+                        </div>
+                    ` : ''}
+                    <div class="result-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">用时</span>
+                            <span>${timeUsed}秒</span>
+                        </div>
+                        ${isSuccess ? `
+                            <div class="stat-item">
+                                <span class="stat-label">剩余时间</span>
+                                <span>${timeRemaining}秒</span>
+                            </div>
+                        ` : ''}
+                        <div class="stat-item">
+                            <span class="stat-label">完成度</span>
+                            <span>${completionRate}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">配对成功</span>
+                            <span>${matchedPairs}/${totalPairs}对</span>
+                        </div>
+                        ${isSuccess ? `
+                            <div class="round-times" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                ${roundTimesHTML}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="result-message">
+                        ${isSuccess ? 
+                            '恭喜你！火箭已经成功升空，开始了它的太空探险之旅！' : 
+                            '差一点就能让火箭起飞了！再试一次，这次一定能成功！'
+                        }
+                    </div>
+                    <div class="result-buttons">
+                        <button class="result-button primary" onclick="location.reload()">再玩一次</button>
+                        <button class="result-button secondary" onclick="window.location.href='difficulty.html'">选择难度</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(popup);
+                
+                // 仅在成功时显示彩带效果
+                if (isSuccess) {
+                    this.createConfetti();
                 }
             }
         }
