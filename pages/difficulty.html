@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="difficulty.title">选择难度</title>
+    <title>选择难度 - 翻翻卡游戏</title>
     <style>
         * {
             margin: 0;
@@ -58,23 +58,23 @@
             z-index: 1;
         }
 
-        .page-header {
+        .title-container {
             text-align: center;
             margin-bottom: 30px;
         }
 
-        .page-header h1 {
+        .title-container h1 {
             font-size: 28px;
             margin-bottom: 10px;
             color: #fff;
         }
 
-        .page-header .subtitle {
+        .title-container p {
             font-size: 16px;
             color: rgba(255, 255, 255, 0.8);
         }
 
-        .difficulty-cards {
+        .difficulty-options {
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -98,41 +98,40 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
 
-        #explore-mode {
+        .difficulty-card.explore {
             border: 2px solid #4CAF50;
         }
 
-        #adventure-mode {
+        .difficulty-card.adventure {
             border: 2px solid #FFA500;
         }
 
-        #challenge-mode {
+        .difficulty-card.challenge {
             border: 2px solid #FF4757;
         }
 
-        .card-header {
+        .difficulty-header {
             display: flex;
             align-items: center;
-            margin-bottom: 5px;
+            gap: 10px;
         }
 
-        .card-icon {
-            font-size: 32px;
-            margin-right: 10px;
+        .difficulty-icon {
+            font-size: 24px;
         }
 
-        .card-title {
-            font-size: 22px;
+        .difficulty-title {
+            font-size: 20px;
             font-weight: 600;
         }
 
-        .card-description {
+        .difficulty-description {
             font-size: 14px;
             color: rgba(255, 255, 255, 0.8);
             margin-bottom: 10px;
         }
 
-        .card-features {
+        .difficulty-features {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
@@ -160,6 +159,19 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .help-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .settings-button {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
         }
@@ -168,177 +180,99 @@
             transform: scale(1.05);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-
-        .button-icon {
-            margin-right: 5px;
-        }
     </style>
 </head>
 <body>
     <div class="page-container">
-        <!-- 页面顶部标题 -->
-        <div class="page-header">
-            <h1 data-i18n="app.name">太空探险记忆翻翻乐</h1>
-            <p class="subtitle" data-i18n="difficulty.subtitle">不同难度的太空之旅</p>
+        <div class="title-container">
+            <h1>太空探险记忆翻翻乐</h1>
+            <p>选择你的探险模式</p>
         </div>
-        
-        <!-- 难度选择卡片 -->
-        <div class="difficulty-cards">
-            <div class="difficulty-card" id="explore-mode">
-                <div class="card-header">
-                    <div class="card-icon">🌍</div>
-                    <h2 class="card-title" data-i18n="difficulty.explore_mode.title">探索模式</h2>
+
+        <div class="difficulty-options">
+            <div class="difficulty-card explore" onclick="selectDifficulty('explore')">
+                <div class="difficulty-header">
+                    <span class="difficulty-icon">🚀</span>
+                    <span class="difficulty-title">探索模式</span>
                 </div>
-                <p class="card-description" data-i18n="difficulty.explore_mode.description">适合5-7岁小朋友，有充足的时间探索太空！</p>
-                <div class="card-features">
-                    <span class="feature-tag" data-i18n="difficulty.explore_mode.feature1">时间充足</span>
-                    <span class="feature-tag" data-i18n="difficulty.explore_mode.feature2">提示更多</span>
-                </div>
-            </div>
-            
-            <div class="difficulty-card" id="adventure-mode">
-                <div class="card-header">
-                    <div class="card-icon">🪐</div>
-                    <h2 class="card-title" data-i18n="difficulty.adventure_mode.title">冒险模式</h2>
-                </div>
-                <p class="card-description" data-i18n="difficulty.adventure_mode.description">适合7-9岁小朋友，来一场刺激的太空冒险！</p>
-                <div class="card-features">
-                    <span class="feature-tag" data-i18n="difficulty.adventure_mode.feature1">适度挑战</span>
-                    <span class="feature-tag" data-i18n="difficulty.adventure_mode.feature2">平衡提示</span>
+                <p class="difficulty-description">适合5-7岁小朋友，有充足的时间探索太空！</p>
+                <div class="difficulty-features">
+                    <span class="feature-tag">时间充足</span>
+                    <span class="feature-tag">提示更多</span>
+                    <span class="feature-tag">轻松愉快</span>
                 </div>
             </div>
-            
-            <div class="difficulty-card" id="challenge-mode">
-                <div class="card-header">
-                    <div class="card-icon">🌠</div>
-                    <h2 class="card-title" data-i18n="difficulty.challenge_mode.title">挑战模式</h2>
+
+            <div class="difficulty-card adventure" onclick="selectDifficulty('adventure')">
+                <div class="difficulty-header">
+                    <span class="difficulty-icon">🚀</span>
+                    <span class="difficulty-title">冒险模式</span>
                 </div>
-                <p class="card-description" data-i18n="difficulty.challenge_mode.description">适合9-10岁小朋友，展现你的太空探险实力！</p>
-                <div class="card-features">
-                    <span class="feature-tag" data-i18n="difficulty.challenge_mode.feature1">快速记忆</span>
-                    <span class="feature-tag" data-i18n="difficulty.challenge_mode.feature2">最少提示</span>
+                <p class="difficulty-description">适合7-9岁小朋友，来一场刺激的太空冒险！</p>
+                <div class="difficulty-features">
+                    <span class="feature-tag">适度挑战</span>
+                    <span class="feature-tag">平衡提示</span>
+                    <span class="feature-tag">充满乐趣</span>
+                </div>
+            </div>
+
+            <div class="difficulty-card challenge" onclick="selectDifficulty('challenge')">
+                <div class="difficulty-header">
+                    <span class="difficulty-icon">🚀</span>
+                    <span class="difficulty-title">挑战模式</span>
+                </div>
+                <p class="difficulty-description">适合9-10岁小朋友，展现你的太空探险实力！</p>
+                <div class="difficulty-features">
+                    <span class="feature-tag">快速记忆</span>
+                    <span class="feature-tag">最少提示</span>
+                    <span class="feature-tag">考验能力</span>
                 </div>
             </div>
         </div>
-        
-        <!-- 底部控制区 -->
+
         <div class="bottom-controls">
-            <button class="control-button back-button" id="back-button">
-                <span class="button-icon">←</span>
-                <span data-i18n="difficulty.back">返回</span>
-            </button>
-            <button class="control-button help-button" id="help-button">
-                <span class="button-icon">❓</span>
-                <span data-i18n="difficulty.help">帮助</span>
-            </button>
-            <button class="control-button settings-button" id="settings-button">
-                <span class="button-icon">⚙️</span>
-                <span data-i18n="difficulty.settings">设置</span>
-            </button>
+            <button class="control-button back-button" onclick="goBack()">返回</button>
+            <button class="control-button help-button" onclick="showHelp()">帮助</button>
+            <button class="control-button settings-button" onclick="showSettings()">设置</button>
         </div>
     </div>
 
+    <script>
+        function selectDifficulty(mode) {
+            // 存储选择的难度模式
+            localStorage.setItem('gameDifficulty', mode);
+            
+            // 根据模式设置不同的时间限制
+            const timeLimits = {
+                explore: 120,
+                adventure: 90,
+                challenge: 60
+            };
+            localStorage.setItem('timeLimit', timeLimits[mode]);
+            
+            // 跳转到游戏页面
+            window.location.href = 'game.html';
+        }
+
+        function goBack() {
+            window.location.href = 'home.html';
+        }
+
+        function showHelp() {
+            // 显示帮助信息
+            alert('探索模式：适合5-7岁小朋友，有充足的时间探索太空！\n冒险模式：适合7-9岁小朋友，来一场刺激的太空冒险！\n挑战模式：适合9-10岁小朋友，展现你的太空探险实力！');
+        }
+
+        function showSettings() {
+            // 显示设置面板
+            alert('设置功能即将推出！');
+        }
+    </script>
+    
     <!-- Vercel Analytics -->
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
-
-    <!-- 引入多语言支持 -->
-    <script>
-        // 设置一个简单的备用i18n对象，防止加载失败
-        window.i18nLoaded = false;
-        window.fallbackI18n = {
-            initialized: false,
-            currentLang: 'zh',
-            getText: function(key) {
-                // 基本的文本键值对
-                const fallbackTexts = {
-                    'difficulty.title': '选择你的探险模式',
-                    'difficulty.subtitle': '不同难度的太空之旅',
-                    'difficulty.back': '返回',
-                    'difficulty.help': '帮助',
-                    'difficulty.settings': '设置'
-                };
-                return fallbackTexts[key] || key;
-            },
-            changeLanguage: function() { 
-                console.log('Fallback: 尝试切换语言，但i18n未正确加载'); 
-                return false; 
-            }
-        };
-        
-        // 定义一个函数来获取i18n对象，防止undefined错误
-        window.getI18n = function() {
-            return (window.i18nLoaded && window.i18n) ? window.i18n : window.fallbackI18n;
-        };
-        
-        function handleI18nLoad() {
-            console.log('i18n.js加载成功');
-            window.i18nLoaded = true;
-            
-            // 尝试初始化
-            if (window.i18n && typeof window.i18n.init === 'function') {
-                window.i18n.init().catch(function(error) {
-                    console.error('i18n初始化失败:', error);
-                });
-            }
-        }
-        
-        function handleI18nError() {
-            console.error('i18n.js加载失败，使用后备方案');
-            // 继续使用fallbackI18n
-        }
-    </script>
-    <script src="../js/i18n.js" onload="handleI18nLoad()" onerror="handleI18nError()"></script>
-    
-    <script>
-        // 难度选择功能
-        document.getElementById('explore-mode').addEventListener('click', function() {
-            localStorage.setItem('gameDifficulty', 'explore');
-            window.location.href = 'game.html';
-        });
-        
-        document.getElementById('adventure-mode').addEventListener('click', function() {
-            localStorage.setItem('gameDifficulty', 'adventure');
-            window.location.href = 'game.html';
-        });
-        
-        document.getElementById('challenge-mode').addEventListener('click', function() {
-            localStorage.setItem('gameDifficulty', 'challenge');
-            window.location.href = 'game.html';
-        });
-        
-        // 返回按钮
-        document.getElementById('back-button').addEventListener('click', function() {
-            window.location.href = 'home.html';
-        });
-        
-        // 帮助按钮
-        document.getElementById('help-button').addEventListener('click', function() {
-            // 获取i18n对象
-            const i18n = window.getI18n();
-            alert(i18n.getText('difficulty.help_content') || '每种难度对应不同的游戏时间和配对数量：\n探索模式：120秒，适合初次体验\n冒险模式：90秒，平衡的游戏体验\n挑战模式：60秒，需要快速反应');
-        });
-        
-        // 设置按钮
-        document.getElementById('settings-button').addEventListener('click', function() {
-            window.location.href = 'settings.html';
-        });
-        
-        // 注册处理语言切换的消息事件
-        window.addEventListener('message', async (event) => {
-            const message = event.data;
-            
-            // 语言改变消息
-            if (message && message.type === 'languageChanged') {
-                console.log('收到语言变更消息:', message.language);
-                const i18n = window.getI18n();
-                if (i18n && i18n.changeLanguage) {
-                    await i18n.changeLanguage(message.language);
-                }
-            }
-        });
-    </script>
 </body>
 </html> 

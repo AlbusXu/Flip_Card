@@ -201,18 +201,18 @@
 </head>
 <body>
     <div class="page-header">
-        <h1 data-i18n="settings.title">设置</h1>
-        <p class="subtitle" data-i18n="settings.subtitle">自定义游戏体验</p>
+        <h1>设置</h1>
+        <p class="subtitle">自定义游戏体验</p>
     </div>
     
     <div class="settings-container">
         <div class="setting-group">
-            <div class="setting-title" data-i18n="settings.game_settings">游戏设置</div>
+            <div class="setting-title">游戏设置</div>
             
             <div class="setting-item">
                 <div class="setting-label">
-                    <div class="setting-name" data-i18n="settings.sound">音效</div>
-                    <div class="setting-description" data-i18n="settings.sound_desc">游戏中的音效和提示音</div>
+                    <div class="setting-name">音效</div>
+                    <div class="setting-description">游戏中的音效和提示音</div>
                 </div>
                 <label class="switch">
                     <input type="checkbox" id="sound-toggle" checked>
@@ -222,20 +222,20 @@
             
             <div class="setting-item">
                 <div class="setting-label">
-                    <div class="setting-name" data-i18n="settings.difficulty">游戏难度</div>
-                    <div class="setting-description" data-i18n="settings.difficulty_desc">调整游戏的整体难度</div>
+                    <div class="setting-name">游戏难度</div>
+                    <div class="setting-description">调整游戏的整体难度</div>
                 </div>
                 <select id="difficulty-select">
-                    <option value="easy" data-i18n="settings.difficulty_options.easy">简单</option>
-                    <option value="normal" selected data-i18n="settings.difficulty_options.normal">普通</option>
-                    <option value="hard" data-i18n="settings.difficulty_options.hard">困难</option>
+                    <option value="easy">简单</option>
+                    <option value="normal" selected>普通</option>
+                    <option value="hard">困难</option>
                 </select>
             </div>
             
             <div class="setting-item">
                 <div class="setting-label">
-                    <div class="setting-name" data-i18n="settings.animation">动画效果</div>
-                    <div class="setting-description" data-i18n="settings.animation_desc">卡片翻转和其他视觉效果</div>
+                    <div class="setting-name">动画效果</div>
+                    <div class="setting-description">卡片翻转和其他视觉效果</div>
                 </div>
                 <label class="switch">
                     <input type="checkbox" id="animation-toggle" checked>
@@ -245,85 +245,28 @@
         </div>
         
         <div class="setting-group">
-            <div class="setting-title" data-i18n="settings.other_settings">其他设置</div>
+            <div class="setting-title">其他设置</div>
             
             <div class="setting-item">
                 <div class="setting-label">
-                    <div class="setting-name" data-i18n="settings.dark_mode">夜间模式</div>
-                    <div class="setting-description" data-i18n="settings.dark_mode_desc">使用深色背景以减轻眼睛疲劳</div>
+                    <div class="setting-name">夜间模式</div>
+                    <div class="setting-description">使用深色背景以减轻眼睛疲劳</div>
                 </div>
                 <label class="switch">
                     <input type="checkbox" id="dark-mode-toggle">
                     <span class="slider"></span>
                 </label>
             </div>
-            
-            <!-- 添加语言选择 -->
-            <div class="setting-item">
-                <div class="setting-label">
-                    <div class="setting-name" data-i18n="settings.language">语言</div>
-                    <div class="setting-description" data-i18n="settings.language_desc">选择界面显示语言</div>
-                </div>
-                <select id="language-select">
-                    <option value="zh" data-i18n="settings.language_options.zh">简体中文</option>
-                    <option value="en" data-i18n="settings.language_options.en">English</option>
-                </select>
-            </div>
         </div>
         
-        <button class="button" id="save-settings" data-i18n="settings.save_settings">保存设置</button>
-        <button class="button secondary" id="reset-settings" data-i18n="settings.reset_settings">恢复默认设置</button>
+        <button class="button" id="save-settings">保存设置</button>
+        <button class="button secondary" id="reset-settings">恢复默认设置</button>
     </div>
     
     <div class="about-section">
-        <div class="app-version" data-i18n="app.version">翻翻卡游戏 v1.0.0</div>
-        <div class="copyright" data-i18n="app.copyright">© 2024 太空探险记忆翻翻乐</div>
+        <div class="app-version">翻翻卡游戏 v1.0.0</div>
+        <div class="copyright">© 2023 翻翻卡游戏团队</div>
     </div>
-    
-    <!-- 引入多语言支持 -->
-    <script>
-        // 设置一个简单的备用i18n对象，防止加载失败
-        window.i18nLoaded = false;
-        window.fallbackI18n = {
-            initialized: false,
-            currentLang: 'zh',
-            getText: function(key) {
-                // 基本的文本键值对
-                const fallbackTexts = {
-                    'settings.settings_saved': '设置已保存',
-                    'settings.reset_confirm': '确定要恢复默认设置吗？'
-                };
-                return fallbackTexts[key] || key;
-            },
-            changeLanguage: function() { 
-                console.log('Fallback: 尝试切换语言，但i18n未正确加载'); 
-                return false; 
-            }
-        };
-        
-        // 定义一个函数来获取i18n对象，防止undefined错误
-        window.getI18n = function() {
-            return (window.i18nLoaded && window.i18n) ? window.i18n : window.fallbackI18n;
-        };
-        
-        function handleI18nLoad() {
-            console.log('i18n.js加载成功');
-            window.i18nLoaded = true;
-            
-            // 尝试初始化
-            if (window.i18n && typeof window.i18n.init === 'function') {
-                window.i18n.init().catch(function(error) {
-                    console.error('i18n初始化失败:', error);
-                });
-            }
-        }
-        
-        function handleI18nError() {
-            console.error('i18n.js加载失败，使用后备方案');
-            // 继续使用fallbackI18n
-        }
-    </script>
-    <script src="../js/i18n.js" onload="handleI18nLoad()" onerror="handleI18nError()"></script>
     
     <script>
         // 加载设置
@@ -332,152 +275,89 @@
                 sound: true,
                 difficulty: 'normal',
                 animation: true,
-                darkMode: false,
-                language: 'zh' // 默认语言为中文
+                darkMode: false
             };
             
             document.getElementById('sound-toggle').checked = settings.sound;
             document.getElementById('difficulty-select').value = settings.difficulty;
             document.getElementById('animation-toggle').checked = settings.animation;
             document.getElementById('dark-mode-toggle').checked = settings.darkMode;
-            document.getElementById('language-select').value = settings.language || 'zh';
             
             // 应用夜间模式
             if (settings.darkMode) {
                 document.body.classList.add('dark-mode');
             }
-            
-            console.log('设置加载完成，当前语言:', settings.language);
-            console.log('i18n状态:', window.i18nLoaded ? '已加载' : '未加载', window.i18n ? '对象存在' : '对象不存在');
         }
         
         // 保存设置
         function saveSettings() {
-            try {
-                const settings = {
-                    sound: document.getElementById('sound-toggle').checked,
-                    difficulty: document.getElementById('difficulty-select').value,
-                    animation: document.getElementById('animation-toggle').checked,
-                    darkMode: document.getElementById('dark-mode-toggle').checked,
-                    language: document.getElementById('language-select').value
-                };
-                
-                localStorage.setItem('flipCardSettings', JSON.stringify(settings));
-                
-                // 显示保存成功消息
-                const saveMessage = document.createElement('div');
-                const i18n = window.getI18n();
-                saveMessage.textContent = i18n.getText('settings.settings_saved');
-                
-                saveMessage.style.position = 'fixed';
-                saveMessage.style.bottom = '20px';
-                saveMessage.style.left = '50%';
-                saveMessage.style.transform = 'translateX(-50%)';
-                saveMessage.style.backgroundColor = '#34c759';
-                saveMessage.style.color = 'white';
-                saveMessage.style.padding = '10px 20px';
-                saveMessage.style.borderRadius = '8px';
-                saveMessage.style.fontSize = '14px';
-                saveMessage.style.fontWeight = '600';
-                saveMessage.style.zIndex = '1000';
-                
-                document.body.appendChild(saveMessage);
+            const settings = {
+                sound: document.getElementById('sound-toggle').checked,
+                difficulty: document.getElementById('difficulty-select').value,
+                animation: document.getElementById('animation-toggle').checked,
+                darkMode: document.getElementById('dark-mode-toggle').checked
+            };
+            
+            localStorage.setItem('flipCardSettings', JSON.stringify(settings));
+            
+            // 显示保存成功消息
+            const saveMessage = document.createElement('div');
+            saveMessage.textContent = '设置已保存';
+            saveMessage.style.position = 'fixed';
+            saveMessage.style.bottom = '20px';
+            saveMessage.style.left = '50%';
+            saveMessage.style.transform = 'translateX(-50%)';
+            saveMessage.style.backgroundColor = '#34c759';
+            saveMessage.style.color = 'white';
+            saveMessage.style.padding = '10px 20px';
+            saveMessage.style.borderRadius = '8px';
+            saveMessage.style.fontSize = '14px';
+            saveMessage.style.fontWeight = '600';
+            saveMessage.style.zIndex = '1000';
+            
+            document.body.appendChild(saveMessage);
+            
+            setTimeout(() => {
+                saveMessage.style.opacity = '0';
+                saveMessage.style.transition = 'opacity 0.5s ease';
                 
                 setTimeout(() => {
-                    saveMessage.style.opacity = '0';
-                    saveMessage.style.transition = 'opacity 0.5s ease';
-                    
-                    setTimeout(() => {
-                        document.body.removeChild(saveMessage);
-                    }, 500);
-                }, 2000);
-                
-                // 应用夜间模式
-                if (settings.darkMode) {
-                    document.body.classList.add('dark-mode');
-                } else {
-                    document.body.classList.remove('dark-mode');
-                }
-                
-                // 如果语言改变，则更新页面语言
-                const i18nObj = window.getI18n();
-                if (i18nObj.currentLang !== settings.language && i18nObj.changeLanguage) {
-                    i18nObj.changeLanguage(settings.language);
-                }
-                
-                // 通知游戏页面设置已更改
-                window.parent.postMessage({
-                    type: 'settingsChanged',
-                    settings: settings
-                }, '*');
-                
-                console.log('设置已保存:', settings);
-            } catch (error) {
-                console.error('保存设置时出错:', error);
-                alert('保存设置时出错: ' + error.message);
+                    document.body.removeChild(saveMessage);
+                }, 500);
+            }, 2000);
+            
+            // 应用夜间模式
+            if (settings.darkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
             }
+            
+            // 通知游戏页面设置已更改
+            window.parent.postMessage({
+                type: 'settingsChanged',
+                settings: settings
+            }, '*');
         }
         
         // 重置设置
         function resetSettings() {
-            try {
-                const i18n = window.getI18n();
-                if (confirm(i18n.getText('settings.reset_confirm'))) {
-                    document.getElementById('sound-toggle').checked = true;
-                    document.getElementById('difficulty-select').value = 'normal';
-                    document.getElementById('animation-toggle').checked = true;
-                    document.getElementById('dark-mode-toggle').checked = false;
-                    document.getElementById('language-select').value = 'zh';
-                    
-                    saveSettings();
-                }
-            } catch (error) {
-                console.error('重置设置时出错:', error);
-                if (confirm('确定要恢复默认设置吗？')) {
-                    document.getElementById('sound-toggle').checked = true;
-                    document.getElementById('difficulty-select').value = 'normal';
-                    document.getElementById('animation-toggle').checked = true;
-                    document.getElementById('dark-mode-toggle').checked = false;
-                    document.getElementById('language-select').value = 'zh';
-                    
-                    try {
-                        saveSettings();
-                    } catch (e) {
-                        console.error('保存默认设置失败:', e);
-                        alert('无法保存默认设置');
-                    }
-                }
+            if (confirm('确定要恢复默认设置吗？')) {
+                document.getElementById('sound-toggle').checked = true;
+                document.getElementById('difficulty-select').value = 'normal';
+                document.getElementById('animation-toggle').checked = true;
+                document.getElementById('dark-mode-toggle').checked = false;
+                
+                saveSettings();
             }
         }
-        
-        // 语言选择变化时立即预览
-        document.getElementById('language-select').addEventListener('change', function() {
-            try {
-                const langCode = this.value;
-                console.log('尝试切换语言到:', langCode);
-                
-                const i18n = window.getI18n();
-                // 只有当选择的语言与当前语言不同时才执行切换
-                if (i18n && i18n.changeLanguage && langCode !== i18n.currentLang) {
-                    i18n.changeLanguage(langCode);
-                    console.log('语言已更改为:', langCode);
-                } else {
-                    console.log('语言未变化或无法切换');
-                }
-            } catch (error) {
-                console.error('切换语言时出错:', error);
-            }
-        });
         
         // 添加事件监听器
         document.getElementById('save-settings').addEventListener('click', saveSettings);
         document.getElementById('reset-settings').addEventListener('click', resetSettings);
         
         // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('设置页面已加载，正在初始化...');
-            loadSettings();
-        });
+        loadSettings();
     </script>
     
     <!-- Vercel Analytics -->

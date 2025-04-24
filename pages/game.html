@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="tabs.game">游戏</title>
+    <title>游戏 - 翻翻卡游戏</title>
     <style>
         * {
             margin: 0;
@@ -645,12 +645,12 @@
         <div class="game-header">
             <div class="progress-container">
                 <div class="progress-text">
-                    <span data-i18n="game.round">关卡</span>: 
-                    <span id="current-round">1</span>
+                    <span>🚀</span>
+                    <span>探索进度：0/9</span>
                 </div>
                 <div class="timer-display">
-                    <span data-i18n="game.time_left">剩余时间</span>: 
-                    <span id="timer">90</span><span data-i18n="game.victory.seconds">s</span>
+                    <span>⏱️</span>
+                    <span id="timer-value">90s</span>
                 </div>
             </div>
             <div class="progress-bar">
@@ -663,8 +663,8 @@
         <div id="message" class="message"></div>
         
         <div class="controls">
-            <button id="start-game" class="button" data-i18n="game.start">开始探索</button>
-            <button id="restart-game" class="button secondary" style="display: none;" data-i18n="game.restart">重新探索</button>
+            <button id="start-game" class="button">开始探索</button>
+            <button id="restart-game" class="button secondary" style="display: none;">重新探索</button>
         </div>
 
         <!-- 添加 Wordy 机器人 -->
@@ -674,54 +674,6 @@
     <!-- 彩带容器 -->
     <div id="confetti-container" class="confetti-container"></div>
     
-    <script>
-        // 设置一个简单的备用i18n对象，防止加载失败
-        window.i18nLoaded = false;
-        window.fallbackI18n = {
-            initialized: false,
-            currentLang: 'zh',
-            getText: function(key) {
-                // 基本的文本键值对
-                const fallbackTexts = {
-                    'game.round': '关卡',
-                    'game.time_left': '剩余时间',
-                    'game.start': '开始',
-                    'game.restart': '重新开始',
-                    'game.game_over': '游戏结束！时间到了！',
-                    'game.urgent_message': '⏰ 时间过半，加油！'
-                };
-                return fallbackTexts[key] || key;
-            },
-            changeLanguage: function() { 
-                console.log('Fallback: 尝试切换语言，但i18n未正确加载'); 
-                return false; 
-            }
-        };
-        
-        // 定义一个函数来获取i18n对象，防止undefined错误
-        window.getI18n = function() {
-            return (window.i18nLoaded && window.i18n) ? window.i18n : window.fallbackI18n;
-        };
-        
-        function handleI18nLoad() {
-            console.log('i18n.js加载成功');
-            window.i18nLoaded = true;
-            
-            // 尝试初始化
-            if (window.i18n && typeof window.i18n.init === 'function') {
-                window.i18n.init().catch(function(error) {
-                    console.error('i18n初始化失败:', error);
-                });
-            }
-        }
-        
-        function handleI18nError() {
-            console.error('i18n.js加载失败，使用后备方案');
-            // 继续使用fallbackI18n
-        }
-    </script>
-    <script src="../js/i18n.js" onload="handleI18nLoad()" onerror="handleI18nError()"></script>
-
     <script>
         class MemoryGame {
             constructor() {
@@ -741,19 +693,22 @@
                 this.initialTime = timeLimits[difficulty];
                 
                 // 初始化时更新显示
-                const timerDisplay = document.querySelector('#timer');
+                const timerDisplay = document.querySelector('#timer-value');
                 if (timerDisplay) {
-                    timerDisplay.textContent = `${this.timeLeft}`;
+                    timerDisplay.textContent = `${this.timeLeft}s`;
                 }
 
                 this.timer = null;
                 this.isPlaying = false;
                 this.roundTimes = [];
                 this.totalStars = 0;
-                
-                // 加载多语言的鼓励消息
-                this.loadEncouragementMessages();
-                
+                this.encouragements = [
+                    '太棒了！继续收集星星！ ⭐',
+                    '你是最棒的星际探险家！ 🚀',
+                    '这片星域被你探索得很好！ 🌟',
+                    '继续前进，宇宙等着你！ 🌠',
+                    '又发现了新的星星！ ✨'
+                ];
                 this.consecutiveErrors = 0;
                 this.lastActionTime = Date.now();
                 this.inactivityTimer = null;
@@ -762,17 +717,22 @@
 
                 // 添加提醒文案
                 this.reminders = {
-                    errors: [],
-                    inactivity: []
+                    errors: [
+                        '别着急，再仔细看看 🤔',
+                        '慢慢来，找找相同的图案 👀',
+                        '试试记住卡片的位置 💭'
+                    ],
+                    inactivity: [
+                        '需要帮忙吗？点击卡片开始探索 🚀',
+                        '来找找看哪些是一样的 🔍',
+                        '准备好继续探索了吗？ ✨'
+                    ]
                 };
-                this.loadReminderMessages();
 
                 // DOM elements
                 this.gameBoard = document.getElementById('game-board');
                 this.startButton = document.getElementById('start-game');
                 this.restartButton = document.getElementById('restart-game');
-                this.timerDisplay = document.getElementById('timer');
-                this.currentRoundDisplay = document.getElementById('current-round');
                 this.messageDisplay = document.getElementById('message');
                 this.confettiContainer = document.getElementById('confetti-container');
                 this.wordy = document.getElementById('wordy');
@@ -789,52 +749,6 @@
                 this.initWordy();
                 // 初始化无操作检测
                 this.initInactivityCheck();
-            }
-            
-            loadEncouragementMessages() {
-                const i18n = window.getI18n();
-                if (i18n && i18n.getText) {
-                    this.encouragements = i18n.getText('game.encouragements');
-                    // 如果返回的不是数组，使用默认消息
-                    if (!Array.isArray(this.encouragements)) {
-                        this.encouragements = [
-                            '太棒了！继续收集星星！ ⭐',
-                            '你是最棒的星际探险家！ 🚀',
-                            '这片星域被你探索得很好！ 🌟',
-                            '继续前进，宇宙等着你！ 🌠',
-                            '又发现了新的星星！ ✨'
-                        ];
-                    }
-                }
-            }
-            
-            loadReminderMessages() {
-                // 加载错误提示和不活跃提示
-                const errorDefaultMessages = [
-                    '别着急，再仔细看看 🤔',
-                    '慢慢来，找找相同的图案 👀',
-                    '试试记住卡片的位置 💭'
-                ];
-                
-                const inactivityDefaultMessages = [
-                    '需要帮忙吗？点击卡片开始探索 🚀',
-                    '来找找看哪些是一样的 🔍',
-                    '准备好继续探索了吗？ ✨'
-                ];
-                
-                const i18n = window.getI18n();
-                
-                // 尝试从i18n获取消息，如果失败则使用默认消息
-                if (i18n && i18n.getText) {
-                    const errorMessages = i18n.getText('game.error_reminders');
-                    const inactivityMessages = i18n.getText('game.inactivity_reminders');
-                    
-                    this.reminders.errors = Array.isArray(errorMessages) ? errorMessages : errorDefaultMessages;
-                    this.reminders.inactivity = Array.isArray(inactivityMessages) ? inactivityMessages : inactivityDefaultMessages;
-                } else {
-                    this.reminders.errors = errorDefaultMessages;
-                    this.reminders.inactivity = inactivityDefaultMessages;
-                }
             }
 
             initWordy() {
@@ -858,7 +772,6 @@
             }
 
             showInactivityReminder() {
-                const i18n = window.getI18n();
                 const reminder = this.reminders.inactivity[Math.floor(Math.random() * this.reminders.inactivity.length)];
                 this.messageDisplay.textContent = reminder;
                 
@@ -874,7 +787,6 @@
             }
 
             showErrorReminder() {
-                const i18n = window.getI18n();
                 const reminder = this.reminders.errors[Math.floor(Math.random() * this.reminders.errors.length)];
                 this.messageDisplay.textContent = reminder;
                 
@@ -905,7 +817,7 @@
                 this.initialTime = timeLimits[difficulty];
                 
                 // 更新显示
-                const timerDisplay = document.querySelector('#timer');
+                const timerDisplay = document.querySelector('#timer-value');
                 if (timerDisplay) {
                     timerDisplay.textContent = `${this.timeLeft}s`;
                 }
@@ -917,8 +829,7 @@
                 this.updateProgress();
                 
                 // 开始游戏时的欢迎语
-                const i18n = window.getI18n();
-                this.messageDisplay.textContent = i18n.getText('game.welcome');
+                this.messageDisplay.textContent = '准备好探索太空了吗？ 🚀';
                 setTimeout(() => {
                     this.messageDisplay.textContent = '';
                 }, 2000);
@@ -954,19 +865,13 @@
             showUrgentMessage() {
                 const urgentMessage = document.createElement('div');
                 urgentMessage.className = 'urgent-message';
-                
-                // 使用i18n获取文本
-                const i18n = window.getI18n();
-                urgentMessage.textContent = i18n.getText('game.urgent_message');
-                
+                urgentMessage.textContent = '⏰ 加油加油，你可以的！';
                 document.body.appendChild(urgentMessage);
 
-                // 添加动画效果
                 setTimeout(() => {
                     urgentMessage.classList.add('show');
                 }, 100);
 
-                // 3秒后移除提示
                 setTimeout(() => {
                     urgentMessage.classList.remove('show');
                     setTimeout(() => {
@@ -1189,12 +1094,7 @@
                 clearInterval(this.timer);
                 clearInterval(this.inactivityTimer);
                 this.isPlaying = false;
-                
-                const i18n = window.getI18n();
-                this.messageDisplay.textContent = isSuccess ? 
-                    i18n.getText('game.victory_message') : 
-                    i18n.getText('game.failure_message');
-                    
+                this.messageDisplay.textContent = isSuccess ? '游戏胜利！时间到了！' : '游戏结束！时间到了！';
                 this.startButton.style.display = 'inline-block';
                 
                 const timeUsed = this.initialTime - this.timeLeft;
@@ -1224,25 +1124,18 @@
                     this.initialTime = timeLimits[difficulty];
                     
                     // 更新显示
-                    const timerDisplay = document.querySelector('#timer');
+                    const timerDisplay = document.querySelector('#timer-value');
                     if (timerDisplay) {
-                        timerDisplay.textContent = `${this.timeLeft}`;
+                        timerDisplay.textContent = `${this.timeLeft}s`;
                     }
 
                     this.gameBoard.innerHTML = '';
                     this.createBoard();
                     
                     // 显示当前轮次完成信息
-                    const i18n = window.getI18n();
-                    this.messageDisplay.textContent = i18n.getText('game.round_complete', {
-                        round: this.currentRound-1,
-                        seconds: roundTime
-                    });
-                    
+                    this.messageDisplay.textContent = `第${this.currentRound-1}轮完成！用时${roundTime}秒 🎉`;
                     setTimeout(() => {
-                        this.messageDisplay.textContent = i18n.getText('game.next_round', {
-                            round: this.currentRound
-                        });
+                        this.messageDisplay.textContent = `准备开始第${this.currentRound}轮！`;
                     }, 2000);
                     setTimeout(() => {
                         this.messageDisplay.textContent = '';
@@ -1266,7 +1159,7 @@
             updateProgress() {
                 const progressText = document.querySelector('.progress-text span:last-child');
                 const progressFill = document.querySelector('.progress-fill');
-                const timerDisplay = document.querySelector('#timer');
+                const timerDisplay = document.querySelector('#timer-value');
                 
                 // 计算总体进度
                 const totalPairsInGame = 9; // 第一轮2对 + 第二轮3对 + 第三轮4对 = 9对
@@ -1283,11 +1176,7 @@
                 
                 // 更新进度文本和进度条
                 if (progressText) {
-                    const i18n = window.getI18n();
-                    progressText.textContent = i18n.getText('game.progress', {
-                        completed: completedPairs,
-                        total: totalPairsInGame
-                    });
+                    progressText.textContent = `探索进度：${completedPairs}/${totalPairsInGame}`;
                 }
                 if (progressFill) {
                     progressFill.style.width = `${progress}%`;
@@ -1368,39 +1257,19 @@
                 // 计算完成度
                 const completionRate = Math.round((matchedPairs / totalPairs) * 100);
                 
-                // 获取i18n对象
-                const i18n = window.getI18n();
-                
                 // 生成每轮用时的HTML（仅在成功时显示）
-                const roundTimesHTML = isSuccess ? this.roundTimes.map((time, index) => {
-                    const roundText = i18n.getText('game.victory.round_time', {round: index + 1});
-                    const secondsText = i18n.getText('game.victory.seconds');
-                    return `
-                        <div class="stat-item">
-                            <span class="stat-label">${roundText}</span>
-                            <span>${time}${secondsText}</span>
-                        </div>
-                    `;
-                }).join('') : '';
-                
-                // 获取多语言文本
-                const titleSuccess = i18n.getText('game.victory.title');
-                const timeUpText = i18n.getText('game.game_over');
-                const timeUsedText = i18n.getText('game.victory.total_time');
-                const secondsText = i18n.getText('game.victory.seconds');
-                const timeRemainingText = i18n.getText('game.time_remaining');
-                const completionRateText = i18n.getText('game.completion_rate');
-                const pairsMatchedText = i18n.getText('game.pairs_matched');
-                const congratsMessage = i18n.getText('game.victory.congrats');
-                const tryAgainMessage = i18n.getText('game.try_again');
-                const playAgainText = i18n.getText('game.play_again');
-                const chooseDifficultyText = i18n.getText('game.choose_difficulty');
+                const roundTimesHTML = isSuccess ? this.roundTimes.map((time, index) => `
+                    <div class="stat-item">
+                        <span class="stat-label">第${index + 1}轮用时</span>
+                        <span>${time}秒</span>
+                    </div>
+                `).join('') : '';
                 
                 popup.innerHTML = `
                     <div class="result-title">
                         ${isSuccess ? 
-                            `<span style="font-size: 32px;">🚀</span>${titleSuccess}` : 
-                            `<span style="font-size: 32px;">⏰</span>${timeUpText}`
+                            `<span style="font-size: 32px;">🚀</span>火箭发射成功！` : 
+                            `<span style="font-size: 32px;">⏰</span>时间到了！`
                         }
                     </div>
                     ${isSuccess ? `
@@ -1410,21 +1279,21 @@
                     ` : ''}
                     <div class="result-stats">
                         <div class="stat-item">
-                            <span class="stat-label">${timeUsedText}</span>
-                            <span>${timeUsed}${secondsText}</span>
+                            <span class="stat-label">用时</span>
+                            <span>${timeUsed}秒</span>
                         </div>
                         ${isSuccess ? `
                             <div class="stat-item">
-                                <span class="stat-label">${timeRemainingText}</span>
-                                <span>${timeRemaining}${secondsText}</span>
+                                <span class="stat-label">剩余时间</span>
+                                <span>${timeRemaining}秒</span>
                             </div>
                         ` : ''}
                         <div class="stat-item">
-                            <span class="stat-label">${completionRateText}</span>
+                            <span class="stat-label">完成度</span>
                             <span>${completionRate}%</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">${pairsMatchedText}</span>
+                            <span class="stat-label">配对成功</span>
                             <span>${matchedPairs}/${totalPairs}对</span>
                         </div>
                         ${isSuccess ? `
@@ -1434,11 +1303,15 @@
                         ` : ''}
                     </div>
                     <div class="result-message">
-                        ${isSuccess ? congratsMessage : tryAgainMessage}
+                        ${isSuccess ? 
+                            '恭喜你！火箭已经成功升空，开始了它的太空探险之旅！' : 
+                            '差一点就能让火箭起飞了！再试一次，这次一定能成功！'
+                        }
                     </div>
                     <div class="result-buttons">
-                        <button class="result-button primary" onclick="location.reload()">${playAgainText}</button>
-                        <button class="result-button secondary" onclick="window.location.href='difficulty.html'">${chooseDifficultyText}</button>
+                        <button class="result-button primary" onclick="location.reload()">再玩一次</button>
+                        <button class="result-button secondary" onclick="window.location.href='difficulty.html'">选择难度</button>
+                        <button class="result-button secondary" onclick="window.location.href='records.html'">查看记录</button>
                     </div>
                 `;
                 
@@ -1448,25 +1321,38 @@
                 if (isSuccess) {
                     this.createConfetti();
                 }
+                
+                // 保存游戏记录到本地存储
+                this.saveGameRecord(isSuccess, stars, timeUsed, difficulty, matchedPairs, totalPairs);
+            }
+
+            saveGameRecord(isSuccess, stars, timeUsed, difficulty, matchedPairs, totalPairs) {
+                // 获取现有记录
+                const recordsJSON = localStorage.getItem('gameRecords');
+                const records = recordsJSON ? JSON.parse(recordsJSON) : [];
+                
+                // 创建新记录
+                const newRecord = {
+                    date: new Date().getTime(),
+                    success: isSuccess,
+                    stars: stars,
+                    timeUsed: timeUsed,
+                    difficulty: difficulty,
+                    matchedPairs: matchedPairs,
+                    totalPairs: totalPairs,
+                    completionRate: Math.round((matchedPairs / totalPairs) * 100)
+                };
+                
+                // 将新记录添加到记录列表
+                records.push(newRecord);
+                
+                // 保存回本地存储
+                localStorage.setItem('gameRecords', JSON.stringify(records));
             }
         }
 
         // 初始化游戏
         const game = new MemoryGame();
-        
-        // 注册处理语言切换的消息事件
-        window.addEventListener('message', async (event) => {
-            const message = event.data;
-            
-            // 语言改变消息
-            if (message && message.type === 'languageChanged') {
-                console.log('收到语言变更消息:', message.language);
-                const i18n = window.getI18n();
-                if (i18n && i18n.changeLanguage) {
-                    await i18n.changeLanguage(message.language);
-                }
-            }
-        });
     </script>
 
     <script src="../js/game.js"></script>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>记录 - 翻翻卡游戏</title>
+    <title>游戏记录 - 太空探险记忆翻翻乐</title>
     <style>
         * {
             margin: 0;
@@ -14,10 +14,10 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-            background: linear-gradient(145deg, #f5f7fa, #e4e7eb);
-            height: 100vh;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            min-height: 100vh;
             padding: 20px;
-            color: #333;
+            color: #ffffff;
         }
         
         .page-header {
@@ -27,48 +27,49 @@
         }
         
         h1 {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 600;
             margin-bottom: 8px;
         }
         
         .subtitle {
-            color: #666;
-            font-size: 14px;
+            color: #e6f7ff;
+            font-size: 16px;
+            opacity: 0.8;
         }
         
         .no-records {
             text-align: center;
             padding: 40px 20px;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             margin: 30px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
         
         .no-records-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+            font-size: 60px;
+            margin-bottom: 20px;
         }
         
         .no-records-text {
-            font-size: 16px;
-            color: #666;
+            font-size: 18px;
+            color: #e6f7ff;
             margin-bottom: 25px;
         }
         
         .button {
             display: inline-block;
             padding: 12px 25px;
-            background-color: #007aff;
+            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
             transition: all 0.3s ease;
             cursor: pointer;
         }
@@ -78,54 +79,96 @@
         }
         
         .records-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
             margin: 20px 0;
         }
         
         .record-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .record-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
         
         .record-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
         }
         
         .record-date {
             font-weight: 500;
-            color: #333;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .record-difficulty {
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+        
+        .difficulty-explore {
+            background-color: #4CAF50;
+        }
+        
+        .difficulty-adventure {
+            background-color: #FF9800;
+        }
+        
+        .difficulty-challenge {
+            background-color: #F44336;
         }
         
         .record-total-time {
             font-weight: 600;
-            color: #007aff;
+            font-size: 22px;
+            color: #e6f7ff;
+            margin: 5px 0;
         }
         
-        .record-rounds {
-            margin-top: 10px;
+        .record-stars {
+            margin: 10px 0;
+            font-size: 22px;
         }
         
-        .record-round {
+        .record-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
             display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            font-size: 14px;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
         }
         
-        .record-round-name {
-            color: #666;
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
         }
         
-        .record-round-time {
+        .stat-value {
+            font-size: 16px;
             font-weight: 500;
+            margin-top: 3px;
         }
         
         .record-rank {
@@ -134,43 +177,88 @@
             right: 0;
             background: #5ac8fa;
             color: white;
-            padding: 4px 12px;
-            font-size: 12px;
+            padding: 6px 15px;
+            font-size: 14px;
             font-weight: 600;
             border-radius: 0 12px 0 12px;
         }
         
+        .record-status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 3px 8px;
+        }
+        
+        .status-success {
+            background-color: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+        
+        .status-failure {
+            background-color: rgba(244, 67, 54, 0.3);
+            color: #F44336;
+        }
+        
         .controls {
             text-align: center;
-            margin-top: 25px;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .secondary-button {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+        
+        /* 图表样式 */
+        .charts-container {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="page-header">
-        <h1>游戏记录</h1>
-        <p class="subtitle">查看你的游戏历史和最佳成绩</p>
+        <h1>太空探险记录</h1>
+        <p class="subtitle">查看你的探险历史和最佳成绩</p>
     </div>
     
     <div id="records-container">
         <!-- 记录将在这里动态生成 -->
-        <div class="no-records">
-            <div class="no-records-icon">📊</div>
-            <p class="no-records-text">你还没有任何游戏记录</p>
-            <button class="button" id="play-game">开始游戏</button>
-        </div>
     </div>
     
     <div class="controls">
-        <button class="button" id="clear-records" style="display: none;">清除记录</button>
+        <button class="button" id="back-to-game">返回游戏</button>
+        <button class="button secondary-button" id="clear-records" style="display: none;">清除记录</button>
     </div>
     
     <script>
         // 获取记录
         function loadRecords() {
-            const recordsJSON = localStorage.getItem('flipCardRecords');
+            const recordsJSON = localStorage.getItem('gameRecords');
             return recordsJSON ? JSON.parse(recordsJSON) : [];
         }
+        
+        // 难度名称映射
+        const difficultyNames = {
+            'explore': '探索模式',
+            'adventure': '冒险模式',
+            'challenge': '挑战模式'
+        };
         
         // 显示记录
         function displayRecords() {
@@ -181,50 +269,57 @@
             if (records.length === 0) {
                 container.innerHTML = `
                     <div class="no-records">
-                        <div class="no-records-icon">📊</div>
-                        <p class="no-records-text">你还没有任何游戏记录</p>
-                        <button class="button" id="play-game">开始游戏</button>
+                        <div class="no-records-icon">🚀</div>
+                        <p class="no-records-text">你还没有任何探险记录</p>
+                        <button class="button" id="start-game">开始探险</button>
                     </div>
                 `;
                 
-                document.getElementById('play-game').addEventListener('click', () => {
-                    window.parent.postMessage({
-                        type: 'navigate',
-                        page: 'pages/game.html'
-                    }, '*');
+                document.getElementById('start-game').addEventListener('click', () => {
+                    window.location.href = 'difficulty.html';
                 });
                 
                 clearButton.style.display = 'none';
             } else {
-                // 按总时间排序
-                records.sort((a, b) => {
-                    const totalTimeA = a.rounds.reduce((sum, time) => sum + time, 0);
-                    const totalTimeB = b.rounds.reduce((sum, time) => sum + time, 0);
-                    return totalTimeA - totalTimeB;
-                });
+                // 复制并按日期排序（最新在前）
+                const sortedRecords = [...records].sort((a, b) => b.date - a.date);
+                
+                // 找出最佳记录（成功的记录中用时最少的）
+                const successRecords = sortedRecords.filter(r => r.success);
+                let bestRecord = null;
+                if (successRecords.length > 0) {
+                    bestRecord = successRecords.reduce((best, current) => 
+                        current.timeUsed < best.timeUsed ? current : best, successRecords[0]);
+                }
                 
                 let recordsHTML = '<div class="records-list">';
                 
-                records.forEach((record, index) => {
-                    const totalTime = record.rounds.reduce((sum, time) => sum + time, 0);
-                    const minutes = Math.floor(totalTime / 60);
-                    const seconds = totalTime % 60;
-                    const timeString = `${minutes > 0 ? minutes + '分' : ''}${seconds}秒`;
+                sortedRecords.forEach((record, index) => {
+                    const isBest = bestRecord && record.date === bestRecord.date;
+                    const formattedDate = new Date(record.date).toLocaleString();
+                    const difficultyName = difficultyNames[record.difficulty] || record.difficulty;
                     
                     recordsHTML += `
                         <div class="record-card">
-                            ${index === 0 ? '<div class="record-rank">最佳</div>' : ''}
-                            <div class="record-header">
-                                <div class="record-date">${new Date(record.date).toLocaleString()}</div>
-                                <div class="record-total-time">${timeString}</div>
+                            ${isBest ? '<div class="record-rank">最佳记录</div>' : ''}
+                            <div class="record-status ${record.success ? 'status-success' : 'status-failure'}">
+                                ${record.success ? '成功' : '未完成'}
                             </div>
-                            <div class="record-rounds">
-                                ${record.rounds.map((time, i) => `
-                                    <div class="record-round">
-                                        <div class="record-round-name">第 ${i + 1} 轮</div>
-                                        <div class="record-round-time">${time} 秒</div>
-                                    </div>
-                                `).join('')}
+                            <div class="record-header">
+                                <div class="record-date">${formattedDate}</div>
+                                <div class="record-difficulty difficulty-${record.difficulty}">${difficultyName}</div>
+                            </div>
+                            <div class="record-total-time">${record.timeUsed} 秒</div>
+                            ${record.success ? `<div class="record-stars">${'⭐'.repeat(record.stars)}</div>` : ''}
+                            <div class="record-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">完成率</span>
+                                    <span class="stat-value">${record.completionRate}%</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">配对</span>
+                                    <span class="stat-value">${record.matchedPairs}/${record.totalPairs}</span>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -236,26 +331,15 @@
             }
         }
         
-        // 清除记录
-        document.getElementById('clear-records').addEventListener('click', () => {
-            if (confirm('确定要清除所有游戏记录吗？')) {
-                localStorage.removeItem('flipCardRecords');
-                displayRecords();
-            }
+        // 返回游戏
+        document.getElementById('back-to-game').addEventListener('click', () => {
+            window.location.href = 'difficulty.html';
         });
         
-        // 监听来自游戏页面的消息
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'gameCompleted') {
-                // 更新记录
-                const records = loadRecords();
-                records.push({
-                    date: new Date().getTime(),
-                    rounds: event.data.rounds
-                });
-                localStorage.setItem('flipCardRecords', JSON.stringify(records));
-                
-                // 重新显示记录
+        // 清除记录
+        document.getElementById('clear-records').addEventListener('click', () => {
+            if (confirm('确定要清除所有游戏记录吗？这个操作无法撤销！')) {
+                localStorage.removeItem('gameRecords');
                 displayRecords();
             }
         });
@@ -263,11 +347,5 @@
         // 初始化
         displayRecords();
     </script>
-    
-    <!-- Vercel Analytics -->
-    <script>
-      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    </script>
-    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html> 
